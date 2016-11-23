@@ -2,23 +2,22 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"html/template"
-	"log"
 	"net/http"
 	"strings"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("/")
+	fmt.Println("/")
 
 	tpl, _ := template.ParseFiles("templates/attendance.tpl")
 	tpl.Execute(w, "")
 }
 
 func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("/attendance")
+	fmt.Println("/attendance")
 
 	if r.Method != "POST" {
 		return
@@ -29,11 +28,13 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 	userName := strings.Join(r.Form["userName"], "")
 	currentTime := strings.Join(r.Form["currentTime"], "")
 
-	log.Printf("ユーザー名: %s", userName)
-	log.Printf("出勤時間: %s", currentTime)
+	fmt.Printf("ユーザー名: %s", userName)
+	fmt.Printf("出勤時間: %s", currentTime)
 
 	db, err := sql.Open("mysql", "root@/gosample")
 	errorChecker(err)
+
+	defer db.Close()
 
 	stmt, err := db.Prepare("insert attendance set username=?, time=?")
 	errorChecker(err)
@@ -41,7 +42,10 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 	res, err := stmt.Exec(userName, currentTime)
 	errorChecker(err)
 
-	log.Println(res)
+	fmt.Println(res)
+
+	w.Header().Set("Location", "/history")
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 type row struct {
@@ -50,10 +54,16 @@ type row struct {
 	time     string
 }
 
+func (r *row) toString() string {
+	return fmt.Sprintf("%d %s %s", r.id, r.userName, r.time)
+}
+
 func HistoryHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("/history")
+	fmt.Println("/history")
 	db, err := sql.Open("mysql", "root@/gosample")
 	errorChecker(err)
+
+	defer db.Close()
 
 	res, err := db.Query("select * from attendance")
 	errorChecker(err)
@@ -66,9 +76,9 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 		var time string
 		err := res.Scan(&id, &userName, &time)
 		errorChecker(err)
-		log.Printf("id: %d", id)
-		log.Printf("userName: %s", userName)
-		log.Printf("time: %s", time)
+		fmt.Printf("id: %d", id)
+		fmt.Printf("userName: %s", userName)
+		fmt.Printf("time: %s", time)
 
 		rows = append(rows, &row{
 			id:       id,
@@ -78,8 +88,14 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	log.Println(rows)
+	var messages []string
 
+	for _, row := range rows {
+		messages = append(messages, row.toString())
+	}
+
+	n, e := w.Write([]byte(strings.Join(messages, "\n")))
+	fmt.Println(n, e)
 }
 
 func main() {
@@ -88,7 +104,7 @@ func main() {
 	http.HandleFunc("/attendance", AttendanceHandler)
 	http.HandleFunc("/history", HistoryHandler)
 
-	log.Println("activated the web server on port 8000")
+	fmt.Println("activated the web server on port 8000")
 	http.ListenAndServe(":8000", nil)
 
 }
