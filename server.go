@@ -44,10 +44,49 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(res)
 }
 
+type row struct {
+	id       int
+	userName string
+	time     string
+}
+
+func HistoryHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("/history")
+	db, err := sql.Open("mysql", "root@/gosample")
+	errorChecker(err)
+
+	res, err := db.Query("select * from attendance")
+	errorChecker(err)
+
+	var rows []*row
+
+	for res.Next() {
+		var id int
+		var userName string
+		var time string
+		err := res.Scan(&id, &userName, &time)
+		errorChecker(err)
+		log.Printf("id: %d", id)
+		log.Printf("userName: %s", userName)
+		log.Printf("time: %s", time)
+
+		rows = append(rows, &row{
+			id:       id,
+			userName: userName,
+			time:     time,
+		})
+
+	}
+
+	log.Println(rows)
+
+}
+
 func main() {
 
 	http.HandleFunc("/", RootHandler)
 	http.HandleFunc("/attendance", AttendanceHandler)
+	http.HandleFunc("/history", HistoryHandler)
 
 	log.Println("activated the web server on port 8000")
 	http.ListenAndServe(":8000", nil)
