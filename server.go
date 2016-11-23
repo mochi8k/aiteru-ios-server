@@ -28,8 +28,9 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 
 	userName := strings.Join(r.Form["userName"], "")
 	currentTime := strings.Join(r.Form["currentTime"], "")
-	log.Println(userName)
-	log.Println(currentTime)
+
+	log.Printf("ユーザー名: %s", userName)
+	log.Printf("出勤時間: %s", currentTime)
 
 	db, err := sql.Open("mysql", "root@/gosample")
 	errorChecker(err)
@@ -39,15 +40,18 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := stmt.Exec(userName, currentTime)
 	errorChecker(err)
+
 	log.Println(res)
 }
 
 func main() {
+
 	http.HandleFunc("/", RootHandler)
 	http.HandleFunc("/attendance", AttendanceHandler)
 
 	log.Println("activated the web server on port 8000")
 	http.ListenAndServe(":8000", nil)
+
 }
 
 func errorChecker(err error) {
