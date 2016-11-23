@@ -1,6 +1,6 @@
-### Getting Started
+# Getting Started
 
-#### MySQL
+## MySQL
 ```
 $ brew install mysql
 $ mysql.server start
