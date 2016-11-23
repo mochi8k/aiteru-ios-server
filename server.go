@@ -2,8 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
 
@@ -11,14 +11,14 @@ import (
 )
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("/")
+	log.Println("/")
 
 	tpl, _ := template.ParseFiles("templates/attendance.tpl")
 	tpl.Execute(w, "")
 }
 
 func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("/attendance")
+	log.Println("/attendance")
 
 	if r.Method != "POST" {
 		return
@@ -28,8 +28,8 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 
 	userName := strings.Join(r.Form["userName"], "")
 	currentTime := strings.Join(r.Form["currentTime"], "")
-	fmt.Println(userName)
-	fmt.Println(currentTime)
+	log.Println(userName)
+	log.Println(currentTime)
 
 	db, err := sql.Open("mysql", "root@/gosample")
 	errorChecker(err)
@@ -39,14 +39,14 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := stmt.Exec(userName, currentTime)
 	errorChecker(err)
-	fmt.Println(res)
+	log.Println(res)
 }
 
 func main() {
 	http.HandleFunc("/", RootHandler)
 	http.HandleFunc("/attendance", AttendanceHandler)
 
-	fmt.Println("activated the web server on port 8000")
+	log.Println("activated the web server on port 8000")
 	http.ListenAndServe(":8000", nil)
 }
 
