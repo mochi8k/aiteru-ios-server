@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"html/template"
 	"net/http"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,8 +29,8 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 	userName := strings.Join(r.Form["userName"], "")
 	currentTime := strings.Join(r.Form["currentTime"], "")
 
-	fmt.Printf("ユーザー名: %s", userName)
-	fmt.Printf("出勤時間: %s", currentTime)
+	fmt.Printf("ユーザー名: %s\n", userName)
+	fmt.Printf("出勤時間: %s\n", currentTime)
 
 	db, err := sql.Open("mysql", "root@/gosample")
 	errorChecker(err)
@@ -39,10 +40,8 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 	stmt, err := db.Prepare("insert attendance set username=?, time=?")
 	errorChecker(err)
 
-	res, err := stmt.Exec(userName, currentTime)
+	_, err = stmt.Exec(userName, currentTime)
 	errorChecker(err)
-
-	fmt.Println(res)
 
 	w.Header().Set("Location", "/history")
 	w.WriteHeader(http.StatusTemporaryRedirect)
@@ -76,9 +75,9 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 		var time string
 		err := res.Scan(&id, &userName, &time)
 		errorChecker(err)
-		fmt.Printf("id: %d", id)
-		fmt.Printf("userName: %s", userName)
-		fmt.Printf("time: %s", time)
+		fmt.Printf("id: %d\n", id)
+		fmt.Printf("userName: %s\n", userName)
+		fmt.Printf("time: %s\n", time)
 
 		rows = append(rows, &row{
 			id:       id,
@@ -94,8 +93,7 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 		messages = append(messages, row.toString())
 	}
 
-	n, e := w.Write([]byte(strings.Join(messages, "\n")))
-	fmt.Println(n, e)
+	w.Write([]byte(strings.Join(messages, "\n")))
 }
 
 func main() {
