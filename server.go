@@ -64,7 +64,16 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer db.Close()
 
-	res, err := db.Query("select * from attendance")
+	query := "select * from attendance"
+	dateQuery := r.URL.Query().Get("date")
+
+	if dateQuery != "" {
+		query += " where date(time)='" + dateQuery + "'"
+	}
+
+	fmt.Printf("Query: %s\n", query)
+
+	res, err := db.Query(query)
 	errorChecker(err)
 
 	var rows []*row
