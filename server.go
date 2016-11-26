@@ -49,13 +49,13 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type row struct {
-	Id       int    `json:"id"`
+	id       int
 	UserName string `json:"userName"`
-	Time     string `json:"time"`
+	DateTime string `json:"dateTime"`
 }
 
 func (r *row) toString() string {
-	return fmt.Sprintf("%d %s %s", r.Id, r.UserName, r.Time)
+	return fmt.Sprintf("%d %s %s", r.id, r.UserName, r.DateTime)
 }
 
 func HistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,17 +82,17 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 	for res.Next() {
 		var id int
 		var userName string
-		var time string
-		err := res.Scan(&id, &userName, &time)
+		var dateTime string
+		err := res.Scan(&id, &userName, &dateTime)
 		errorChecker(err)
 		fmt.Printf("id: %d\n", id)
-		fmt.Printf("UserName: %s\n", userName)
-		fmt.Printf("time: %s\n", time)
+		fmt.Printf("userName: %s\n", userName)
+		fmt.Printf("dateTime: %s\n", dateTime)
 
 		rows = append(rows, &row{
-			Id:       id,
+			id:       id,
 			UserName: userName,
-			Time:     time,
+			DateTime: dateTime,
 		})
 
 	}
