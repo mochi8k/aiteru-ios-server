@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -48,13 +49,13 @@ func AttendanceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type row struct {
-	id       int
-	userName string
-	time     string
+	Id       int    `json:"id"`
+	UserName string `json:"userName"`
+	Time     string `json:"time"`
 }
 
 func (r *row) toString() string {
-	return fmt.Sprintf("%d %s %s", r.id, r.userName, r.time)
+	return fmt.Sprintf("%d %s %s", r.Id, r.UserName, r.Time)
 }
 
 func HistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -85,24 +86,20 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 		err := res.Scan(&id, &userName, &time)
 		errorChecker(err)
 		fmt.Printf("id: %d\n", id)
-		fmt.Printf("userName: %s\n", userName)
+		fmt.Printf("UserName: %s\n", userName)
 		fmt.Printf("time: %s\n", time)
 
 		rows = append(rows, &row{
-			id:       id,
-			userName: userName,
-			time:     time,
+			Id:       id,
+			UserName: userName,
+			Time:     time,
 		})
 
 	}
 
-	var messages []string
+	b, _ := json.Marshal(rows)
 
-	for _, row := range rows {
-		messages = append(messages, row.toString())
-	}
-
-	w.Write([]byte(strings.Join(messages, "\n")))
+	w.Write(b)
 }
 
 func main() {
