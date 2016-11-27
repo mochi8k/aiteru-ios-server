@@ -77,6 +77,8 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 	res, err := db.Query(query)
 	errorChecker(err)
 
+	defer res.Close()
+
 	var rows []*row
 
 	for res.Next() {
