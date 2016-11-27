@@ -99,7 +99,7 @@ func HistoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	b, _ := json.Marshal(rows)
+	b, _ := json.Marshal(map[string][]*row{"history": rows})
 
 	w.Write(b)
 }
