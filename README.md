@@ -6,35 +6,47 @@ $ brew install mysql
 $ mysql.server start
 $ mysql -uroot
 
-mysql> create database aiteru;
+create database aiteru;
 
-mysql> create table users(
+create table users(
     `id` int(11) unsigned not null auto_increment,
     `user_name` varchar(255) not null,
-    `created_at` date,
+    `created_at` timestamp not null default current_timestamp,
     `created_by` int(11),
-    `updated_at` date,
+    `updated_at` timestamp not null default current_timestamp on update current_timestamp,
     `updated_by` int(11),
     primary key(id)
 );
 
-mysql> create table places(
+create table places(
     `id` int(11) unsigned not null auto_increment,
     `place_name` varchar(255) not null,
-    `owners` varchar(255) not null,
-    `collaborators` varchar(255) not null,
-    `created_at` date,
+    `created_at` timestamp not null default current_timestamp,
     `created_by` int(11),
-    `updated_at` date,
+    `updated_at` timestamp not null default current_timestamp on update current_timestamp,
     `updated_by` int(11),
-     primary key(id)
+    primary key(id)
 );
 
-mysql> create table place_status(
-   `place_id` int(11) unsigned not null,
-   `is_open` boolean not null,
-   `updated_at` date,
-   `updated_by` int(11)
+create table place_collaborators(
+    `place_id` int(11) unsigned not null,
+    `collaborator_name` varchar(255) not null,
+    primary key(place_id, collaborator_name)
+);
+
+
+create table place_owners(
+    `place_id` int(11) unsigned not null,
+    `owner_name` varchar(255) not null,
+    primary key(place_id, owner_name)
+);
+
+
+create table place_status(
+    `place_id` int(11) unsigned not null,
+    `is_open` boolean not null,
+    `updated_at` timestamp not null default current_timestamp,
+    `updated_by` int(11)
 );
 
 ```
