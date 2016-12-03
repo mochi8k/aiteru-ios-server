@@ -28,19 +28,17 @@ create table places(
     primary key(id)
 );
 
-create table place_collaborators(
-    `place_id` int(11) unsigned not null,
-    `collaborator_name` varchar(255) not null,
-    primary key(place_id, collaborator_name)
-);
-
-
 create table place_owners(
     `place_id` int(11) unsigned not null,
-    `owner_name` varchar(255) not null,
-    primary key(place_id, owner_name)
+    `owner_id` int(11) unsigned not null,
+    primary key(place_id, owner_id)
 );
 
+create table place_collaborators(
+    `place_id` int(11) unsigned not null,
+    `collaborator_id` int(11) unsigned not null,
+    primary key(place_id, collaborator_id)
+);
 
 create table place_status(
     `place_id` int(11) unsigned not null,
