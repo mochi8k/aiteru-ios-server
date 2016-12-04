@@ -33,16 +33,6 @@ type APIResource interface {
 	OPTIONS(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
 }
 
-type apiHeader struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-}
-
-type apiEnvelope struct {
-	Header   apiHeader   `json:"header"`
-	Response interface{} `json:"response"`
-}
-
 func APIRsourceHandler(apiResource APIResource) http.HandleFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		b := bytes.NewBuffer(make([]byte, 0))
@@ -54,41 +44,28 @@ func APIRsourceHandler(apiResource APIResource) http.HandleFunc {
 		r.ParseForm()
 
 		var status APIStatus
-		var data interface{}
+		var response interface{}
 
 		switch r.Method {
 		case post:
-			status, data = apiResource.POST(r.URL.Path, r.Form, reader)
+			status, response = apiResource.POST(r.URL.Path, r.Form, reader)
 		case get:
-			status, data = apiResource.GET(r.URL.Path, r.Form, reader)
+			status, response = apiResource.GET(r.URL.Path, r.Form, reader)
 		case put:
-			status, data = apiResource.PUT(r.URL.Path, r.Form, reader)
+			status, response = apiResource.PUT(r.URL.Path, r.Form, reader)
 		case delete:
-			status, data = apiResource.DELETE(r.URL.Path, r.Form, reader)
+			status, response = apiResource.DELETE(r.URL.Path, r.Form, reader)
 		case patch:
-			status, data = apiResource.PATCH(r.URL.Path, r.Form, reader)
+			status, response = apiResource.PATCH(r.URL.Path, r.Form, reader)
 		case options:
-			status, data = apiResource.OPTIONS(r.URL.Path, r.Form, reader)
+			status, response = apiResource.OPTIONS(r.URL.Path, r.Form, reader)
 
-		}
-
-		var content []byte
-		var e error
-
-		if status.isSuccess {
-			content, e = json.Marshal(apiEnvelope{
-				Header:   apiHeader{Status: "success"},
-				Response: data,
-			})
-		} else {
-			content, e = json.Marshal(apiEnvelope{
-				Header: apiHeader{Status: "fail", Message: status.message},
-			})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status.code)
-		w.Write(content)
 
+		responseBytes, _ := json.Marshal(response)
+		w.Write(responseBytes)
 	}
 }
