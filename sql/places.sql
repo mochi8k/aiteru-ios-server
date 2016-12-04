@@ -1,9 +1,9 @@
 create table places(
     `id` int(11) unsigned not null auto_increment,
     `place_name` varchar(255) not null,
-    `created_at` timestamp not null default current_timestamp,
+    `created_at` datetime,
     `created_by` int(11),
-    `updated_at` timestamp not null default current_timestamp on update current_timestamp,
+    `updated_at` datetime,
     `updated_by` int(11),
     primary key(id)
 );
@@ -23,6 +23,6 @@ create table place_collaborators(
 create table place_status(
     `place_id` int(11) unsigned not null,
     `is_open` boolean not null,
-    `updated_at` timestamp not null default current_timestamp,
+    `updated_at` datetime,
     `updated_by` int(11)
 );
