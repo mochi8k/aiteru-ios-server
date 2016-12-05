@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 const (
@@ -25,15 +26,43 @@ type APIStatus struct {
 }
 
 type APIResource interface {
-	POST(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	GET(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	PUT(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	DELETE(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	PATCH(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	OPTIONS(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
+	Post(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
+	Get(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
+	Put(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
+	Delete(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
+	Patch(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
+	Options(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
 }
 
-func APIRsourceHandler(apiResource APIResource) http.HandleFunc {
+type APIResourceBase struct{}
+
+func (APIResourceBase) Post(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+	return FailByCode(http.StatusMethodNotAllowed), nil
+}
+
+func (APIResourceBase) Get(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+	return FailByCode(http.StatusMethodNotAllowed), nil
+}
+
+func (APIResourceBase) Put(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+	return FailByCode(http.StatusMethodNotAllowed), nil
+}
+func (APIResourceBase) Delete(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+	return FailByCode(http.StatusMethodNotAllowed), nil
+}
+func (APIResourceBase) Patch(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+	return FailByCode(http.StatusMethodNotAllowed), nil
+}
+
+func (APIResourceBase) Options(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+	return FailByCode(http.StatusMethodNotAllowed), nil
+}
+
+func FailByCode(code int) APIStatus {
+	return APIStatus{isSuccess: false, code: code, message: strconv.Itoa(code) + " " + http.StatusText(code)}
+}
+
+func APIRsourceHandler(apiResource APIResource) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		b := bytes.NewBuffer(make([]byte, 0))
 		reader := io.TeeReader(r.Body, b)
@@ -48,17 +77,17 @@ func APIRsourceHandler(apiResource APIResource) http.HandleFunc {
 
 		switch r.Method {
 		case post:
-			status, response = apiResource.POST(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Post(r.URL.Path, r.Form, reader)
 		case get:
-			status, response = apiResource.GET(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Get(r.URL.Path, r.Form, reader)
 		case put:
-			status, response = apiResource.PUT(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Put(r.URL.Path, r.Form, reader)
 		case delete:
-			status, response = apiResource.DELETE(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Delete(r.URL.Path, r.Form, reader)
 		case patch:
-			status, response = apiResource.PATCH(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Patch(r.URL.Path, r.Form, reader)
 		case options:
-			status, response = apiResource.OPTIONS(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Options(r.URL.Path, r.Form, reader)
 
 		}
 
