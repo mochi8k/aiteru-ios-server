@@ -58,11 +58,19 @@ func (APIResourceBase) Options(url string, queries url.Values, body io.Reader) (
 	return FailByCode(http.StatusMethodNotAllowed), nil
 }
 
+func Success(code int) APIStatus {
+	return APIStatus{isSuccess: true, code: code, message: ""}
+}
+
+func Fail(code int, message string) APIStatus {
+	return APIStatus{isSuccess: false, code: code, message: message}
+}
+
 func FailByCode(code int) APIStatus {
 	return APIStatus{isSuccess: false, code: code, message: strconv.Itoa(code) + " " + http.StatusText(code)}
 }
 
-func APIRsourceHandler(apiResource APIResource) http.HandlerFunc {
+func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		b := bytes.NewBuffer(make([]byte, 0))
 		reader := io.TeeReader(r.Body, b)
