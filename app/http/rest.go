@@ -3,6 +3,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -82,6 +83,8 @@ func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
 
 		var status APIStatus
 		var response interface{}
+
+		fmt.Printf("%s: %s\n", r.Method, r.URL.Path)
 
 		switch r.Method {
 		case post:
