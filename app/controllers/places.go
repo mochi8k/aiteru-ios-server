@@ -6,9 +6,11 @@ import (
 
 	"fmt"
 	rest "github.com/mochi8k/aiteru-ios-server/app/http"
+	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 func init() {
@@ -60,25 +62,30 @@ func (p places) Get(url string, queries url.Values, body io.Reader) (rest.APISta
 
 	errorChecker(err)
 
+	var places []*models.Place
+
 	for res.Next() {
 		var id int
 		var placeName, ownerNames, collaboratorNames, createdBy, createdAt, updatedBy, updatedAt string
 		res.Scan(&id, &placeName, &ownerNames, &collaboratorNames, &createdBy, &createdAt, &updatedBy, &updatedAt)
-		fmt.Println(id)
-		fmt.Println(placeName)
-		fmt.Println(ownerNames)
-		fmt.Println(collaboratorNames)
-		fmt.Println(createdAt)
-		fmt.Println(createdBy)
-		fmt.Println(updatedAt)
-		fmt.Println(updatedBy)
+		place := &models.Place{
+			ID:              id,
+			Name:            placeName,
+			Owners:          strings.Split(ownerNames, ","),
+			Collaborators:   strings.Split(collaboratorNames, ","),
+			CreatedAt:       createdAt,
+			CreatedUserName: createdBy,
+			UpdatedAt:       updatedAt,
+			UpdatedUserName: updatedBy,
+		}
+		places = append(places, place)
+
+		fmt.Printf("Place: %+v\n", place)
 	}
 
 	defer res.Close()
 
-	fmt.Println(res)
-
-	return rest.Success(http.StatusOK), nil
+	return rest.Success(http.StatusOK), places
 }
 
 func (p places) Post(url string, queries url.Values, body io.Reader) (rest.APIStatus, interface{}) {
