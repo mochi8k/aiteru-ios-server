@@ -1,12 +1,12 @@
 package models
 
 type Place struct {
-	ID              int      `json:"id"`
+	ID              string   `json:"id"`
 	Name            string   `json:"name"`
-	Owners          []string `json:"owners"`
-	Collaborators   []string `json:"collaborators"`
+	OwnerIDs        []string `json:"ownerIds"`
+	CollaboratorIDs []string `json:"collaboratorIds"`
 	CreatedAt       string   `json:"createdAt"`
-	CreatedUserName string   `json:"createdUserName"`
+	CreatedUserID   string   `json:"createdUserId"`
 	UpdatedAt       string   `json:"updatedAt"`
-	UpdatedUserName string   `json:"updatedUserName"`
+	UpdatedUserID   string   `json:"updatedUserId"`
 }
