@@ -71,8 +71,7 @@ func (p places) Get(url string, queries url.Values, body io.Reader) (rest.APISta
 
 		fmt.Printf("Place: %+v\n", place)
 		if place.ID == "" {
-			// TODO: 400
-			return rest.Success(http.StatusOK), nil
+			return rest.FailByCode(http.StatusNotFound), nil
 
 		}
 
