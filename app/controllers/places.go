@@ -11,8 +11,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 )
+
+type places struct {
+	rest.APIResourceBase
+}
 
 func init() {
 	http.Handle("/places/", rest.APIResourceHandler(places{}))
@@ -39,8 +44,19 @@ func getDefaultSelectBuilder() sq.SelectBuilder {
 		GroupBy("p.id, u3.user_name, u4.user_name")
 }
 
-type places struct {
-	rest.APIResourceBase
+func toPlace(scanner sq.RowScanner) *models.Place {
+	var id, placeName, ownerIDs, collaboratorIDs, createdAt, createdUserID, updatedAt, updatedUserID string
+	scanner.Scan(&id, &placeName, &ownerIDs, &collaboratorIDs, &createdUserID, &createdAt, &updatedUserID, &updatedAt)
+	return &models.Place{
+		ID:              id,
+		Name:            placeName,
+		OwnerIDs:        strings.Split(ownerIDs, ","),
+		CollaboratorIDs: strings.Split(collaboratorIDs, ","),
+		CreatedAt:       createdAt,
+		CreatedUserID:   createdUserID,
+		UpdatedAt:       updatedAt,
+		UpdatedUserID:   updatedUserID,
+	}
 }
 
 func (p places) Get(url string, queries url.Values, body io.Reader) (rest.APIStatus, interface{}) {
@@ -51,32 +67,30 @@ func (p places) Get(url string, queries url.Values, body io.Reader) (rest.APISta
 	defer db.Close()
 
 	if id := url[len("/places/"):]; id != "" {
-		fmt.Println(id)
+		rowScanner := getDefaultSelectBuilder().Where(sq.Eq{"p.id": id}).RunWith(db).QueryRow()
+		place := toPlace(rowScanner)
+
+		fmt.Printf("Place: %+v\n", place)
+		if place.ID == "" {
+			// TODO: 400
+			return rest.Success(http.StatusOK), nil
+
+		}
+
+		return rest.Success(http.StatusOK), place
 	}
 
-	query, _, _ := getDefaultSelectBuilder().ToSql()
-	fmt.Println(query)
-	res, err := db.Query(query)
+	res, err := getDefaultSelectBuilder().RunWith(db).Query()
 
 	errorChecker(err)
 
+	// TODO: variable name
 	var places []*models.Place
 
+	fmt.Println(reflect.TypeOf(res))
 	for res.Next() {
-		var id, placeName, ownerIDs, collaboratorIDs, createdAt, createdUserID, updatedAt, updatedUserID string
-		res.Scan(&id, &placeName, &ownerIDs, &collaboratorIDs, &createdUserID, &createdAt, &updatedUserID, &updatedAt)
-		place := &models.Place{
-			ID:              id,
-			Name:            placeName,
-			OwnerIDs:        strings.Split(ownerIDs, ","),
-			CollaboratorIDs: strings.Split(collaboratorIDs, ","),
-			CreatedAt:       createdAt,
-			CreatedUserID:   createdUserID,
-			UpdatedAt:       updatedAt,
-			UpdatedUserID:   updatedUserID,
-		}
+		place := toPlace(res)
 		places = append(places, place)
-
 		fmt.Printf("Place: %+v\n", place)
 	}
 
