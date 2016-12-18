@@ -11,7 +11,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strings"
 )
 
@@ -87,7 +86,6 @@ func (p places) Get(url string, queries url.Values, body io.Reader) (rest.APISta
 	// TODO: variable name
 	var places []*models.Place
 
-	fmt.Println(reflect.TypeOf(res))
 	for res.Next() {
 		place := toPlace(res)
 		places = append(places, place)
