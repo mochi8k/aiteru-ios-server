@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"github.com/mochi8k/aiteru-ios-server/app/stores"
 	"io"
 	"io/ioutil"
@@ -28,35 +29,35 @@ type APIStatus struct {
 }
 
 type APIResource interface {
-	Post(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	Get(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	Put(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	Delete(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	Patch(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
-	Options(url string, queries url.Values, body io.Reader) (APIStatus, interface{})
+	Post(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
+	Get(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
+	Put(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
+	Delete(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
+	Patch(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
+	Options(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
 }
 
 type APIResourceBase struct{}
 
-func (APIResourceBase) Post(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+func (APIResourceBase) Post(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
 	return FailByCode(http.StatusMethodNotAllowed), nil
 }
 
-func (APIResourceBase) Get(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+func (APIResourceBase) Get(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
 	return FailByCode(http.StatusMethodNotAllowed), nil
 }
 
-func (APIResourceBase) Put(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+func (APIResourceBase) Put(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
 	return FailByCode(http.StatusMethodNotAllowed), nil
 }
-func (APIResourceBase) Delete(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+func (APIResourceBase) Delete(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
 	return FailByCode(http.StatusMethodNotAllowed), nil
 }
-func (APIResourceBase) Patch(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+func (APIResourceBase) Patch(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
 	return FailByCode(http.StatusMethodNotAllowed), nil
 }
 
-func (APIResourceBase) Options(url string, queries url.Values, body io.Reader) (APIStatus, interface{}) {
+func (APIResourceBase) Options(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
 	return FailByCode(http.StatusMethodNotAllowed), nil
 }
 
@@ -72,12 +73,29 @@ func FailByCode(code int) APIStatus {
 	return APIStatus{isSuccess: false, code: code, message: strconv.Itoa(code) + " " + http.StatusText(code)}
 }
 
+// TODO: another class
+func Auth(url, accessToken string) (*models.Session, bool) {
+
+	// TODO: matching
+	if url == "/auth" {
+		return nil, false
+	}
+
+	session := stores.GetSession(accessToken)
+
+	if session == nil {
+		return nil, true
+	}
+
+	return session, false
+}
+
 func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		accessToken := req.Header.Get("Authorization")
-		session := stores.GetSession(accessToken)
-		fmt.Println(session)
-		if session == nil {
+
+		session, isUnauth := Auth(req.URL.Path, req.Header.Get("Authorization"))
+
+		if isUnauth {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -98,18 +116,17 @@ func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
 
 		switch req.Method {
 		case post:
-			status, response = apiResource.Post(req.URL.Path, req.Form, reader)
+			status, response = apiResource.Post(req.URL.Path, req.Form, reader, session)
 		case get:
-			status, response = apiResource.Get(req.URL.Path, req.Form, reader)
+			status, response = apiResource.Get(req.URL.Path, req.Form, reader, session)
 		case put:
-			status, response = apiResource.Put(req.URL.Path, req.Form, reader)
+			status, response = apiResource.Put(req.URL.Path, req.Form, reader, session)
 		case delete:
-			status, response = apiResource.Delete(req.URL.Path, req.Form, reader)
+			status, response = apiResource.Delete(req.URL.Path, req.Form, reader, session)
 		case patch:
-			status, response = apiResource.Patch(req.URL.Path, req.Form, reader)
+			status, response = apiResource.Patch(req.URL.Path, req.Form, reader, session)
 		case options:
-			status, response = apiResource.Options(req.URL.Path, req.Form, reader)
-
+			status, response = apiResource.Options(req.URL.Path, req.Form, reader, session)
 		}
 
 		w.Header().Set("Content-Type", "application/json")

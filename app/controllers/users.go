@@ -7,7 +7,7 @@ import (
 
 	"fmt"
 	rest "github.com/mochi8k/aiteru-ios-server/app/http"
-	_ "github.com/mochi8k/aiteru-ios-server/app/models"
+	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -22,12 +22,12 @@ func init() {
 	http.Handle("/users/", rest.APIResourceHandler(users{}))
 }
 
-func (u users) Get(url string, queries url.Values, body io.Reader) (rest.APIStatus, interface{}) {
+func (u users) Get(url string, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
 	fmt.Println("Get")
 	return rest.Success(http.StatusCreated), nil
 }
 
-func (u users) Post(url string, queries url.Values, body io.Reader) (rest.APIStatus, interface{}) {
+func (u users) Post(url string, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
 	fmt.Println("Post")
 	// sq.
 	// 	Insert("users").

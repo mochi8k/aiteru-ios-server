@@ -42,7 +42,7 @@ func toUser(scanner sq.RowScanner) *models.User {
 	}
 }
 
-func (auth) Post(url string, queries url.Values, reader io.Reader) (rest.APIStatus, interface{}) {
+func (auth) Post(url string, queries url.Values, reader io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 
 	var loginParam loginParam
 

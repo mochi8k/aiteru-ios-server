@@ -58,7 +58,7 @@ func toPlace(scanner sq.RowScanner) *models.Place {
 	}
 }
 
-func (p places) Get(url string, queries url.Values, body io.Reader) (rest.APIStatus, interface{}) {
+func (p places) Get(url string, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
 
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
@@ -96,7 +96,7 @@ func (p places) Get(url string, queries url.Values, body io.Reader) (rest.APISta
 	return rest.Success(http.StatusOK), places
 }
 
-func (p places) Post(url string, queries url.Values, body io.Reader) (rest.APIStatus, interface{}) {
+func (p places) Post(url string, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
 	fmt.Println(url)
 	fmt.Println(queries)
 	fmt.Println(body)
