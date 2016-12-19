@@ -4,29 +4,17 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-type sessionManger struct {
-	sessionsMap map[uuid.UUID]*session
-}
-
-func (sm *sessionManger) addSession(s *session) {
-	sm.sessionsMap[s.GetAccessToken()] = s
-}
-
-func (sm sessionManger) GetSession(accessToken uuid.UUID) *session {
-	return sm.sessionsMap[accessToken]
-}
-
-type session struct {
+type Session struct {
 	AccessToken uuid.UUID
 	User        User
 }
 
-func (s session) GetAccessToken() uuid.UUID {
+func (s Session) GetAccessToken() uuid.UUID {
 	return s.AccessToken
 }
 
-func newSession(user User) *session {
-	session := &session{
+func NewSession(user User) *Session {
+	session := &Session{
 		AccessToken: uuid.NewV4(),
 		User:        user,
 	}

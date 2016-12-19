@@ -86,7 +86,6 @@ func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
 
 		fmt.Printf("%s: %s\n", r.Method, r.URL.Path)
 		fmt.Printf("Queries: %v\n", r.Form)
-		fmt.Printf("Body: %v\n", reader)
 
 		switch r.Method {
 		case post:
