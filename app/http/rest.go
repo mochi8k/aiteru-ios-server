@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/mochi8k/aiteru-ios-server/app/stores"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -72,34 +73,42 @@ func FailByCode(code int) APIStatus {
 }
 
 func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		accessToken := req.Header.Get("Authorization")
+		session := stores.GetSession(accessToken)
+		fmt.Println(session)
+		if session == nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
 		b := bytes.NewBuffer(make([]byte, 0))
-		reader := io.TeeReader(r.Body, b)
+		reader := io.TeeReader(req.Body, b)
 
-		r.Body = ioutil.NopCloser(b)
-		defer r.Body.Close()
+		req.Body = ioutil.NopCloser(b)
+		defer req.Body.Close()
 
-		r.ParseForm()
+		req.ParseForm()
 
 		var status APIStatus
 		var response interface{}
 
-		fmt.Printf("%s: %s\n", r.Method, r.URL.Path)
-		fmt.Printf("Queries: %v\n", r.Form)
+		fmt.Printf("%s: %s\n", req.Method, req.URL.Path)
+		fmt.Printf("Queries: %v\n", req.Form)
 
-		switch r.Method {
+		switch req.Method {
 		case post:
-			status, response = apiResource.Post(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Post(req.URL.Path, req.Form, reader)
 		case get:
-			status, response = apiResource.Get(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Get(req.URL.Path, req.Form, reader)
 		case put:
-			status, response = apiResource.Put(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Put(req.URL.Path, req.Form, reader)
 		case delete:
-			status, response = apiResource.Delete(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Delete(req.URL.Path, req.Form, reader)
 		case patch:
-			status, response = apiResource.Patch(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Patch(req.URL.Path, req.Form, reader)
 		case options:
-			status, response = apiResource.Options(r.URL.Path, r.Form, reader)
+			status, response = apiResource.Options(req.URL.Path, req.Form, reader)
 
 		}
 

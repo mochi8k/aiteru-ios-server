@@ -5,17 +5,17 @@ import (
 )
 
 type Session struct {
-	AccessToken uuid.UUID
+	AccessToken string
 	User        User
 }
 
-func (s Session) GetAccessToken() uuid.UUID {
+func (s Session) GetAccessToken() string {
 	return s.AccessToken
 }
 
 func NewSession(user User) *Session {
 	session := &Session{
-		AccessToken: uuid.NewV4(),
+		AccessToken: uuid.NewV4().String(),
 		User:        user,
 	}
 	return session
