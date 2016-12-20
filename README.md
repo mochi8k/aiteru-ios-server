@@ -11,6 +11,12 @@ create database aiteru;
 
 # Progress
 
-POST: /auth  
+POST: /auth
+```
+{
+  "name": "user-name",
+  "address": "e-mail"
+}
+```
 GET: /v1/places  
 GET: /v1/places/{place-id}
