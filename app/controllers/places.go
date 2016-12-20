@@ -65,7 +65,7 @@ func (p places) Get(url string, queries url.Values, body io.Reader, session *mod
 
 	defer db.Close()
 
-	if id := url[len("/places/"):]; id != "" {
+	if id := url[len("/v1/places/"):]; id != "" {
 		rowScanner := getDefaultSelectBuilder().Where(sq.Eq{"p.id": id}).RunWith(db).QueryRow()
 		place := toPlace(rowScanner)
 
