@@ -12,5 +12,5 @@ create database aiteru;
 # Progress
 
 POST: /auth  
-GET: /places  
-GET: /places/{place-id}
+GET: /v1/places  
+GET: /v1/places/{place-id}

@@ -19,7 +19,7 @@ type places struct {
 }
 
 func init() {
-	http.Handle("/places/", rest.APIResourceHandler(places{}))
+	http.Handle("/v1/places/", rest.APIResourceHandler(places{}))
 }
 
 func getDefaultSelectBuilder() sq.SelectBuilder {

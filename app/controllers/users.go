@@ -19,7 +19,7 @@ type users struct {
 }
 
 func init() {
-	http.Handle("/users/", rest.APIResourceHandler(users{}))
+	http.Handle("/v1/users/", rest.APIResourceHandler(users{}))
 }
 
 func (u users) Get(url string, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
