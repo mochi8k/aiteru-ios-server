@@ -46,7 +46,7 @@ func FailByCode(code int) APIStatus {
 
 // TODO: another class
 func Auth(url, accessToken string) (*models.Session, bool) {
-	return nil, false
+
 	// TODO: matching
 	if url == "/auth" {
 		return nil, false
