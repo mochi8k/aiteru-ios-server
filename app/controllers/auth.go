@@ -20,7 +20,6 @@ import (
 
 type loginParam struct {
 	UserName string `json:"name"`
-	Address  string `json:"address"`
 }
 
 func init() {
