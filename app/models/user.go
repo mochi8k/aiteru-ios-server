@@ -8,3 +8,7 @@ type User struct {
 	UpdatedAt     string `json:"updatedAt"`
 	UpdatedUserID string `json:"updatedUserId"`
 }
+
+func (u User) GetID() string {
+	return u.ID
+}

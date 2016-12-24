@@ -13,6 +13,10 @@ func (s Session) GetAccessToken() string {
 	return s.AccessToken
 }
 
+func (s Session) GetUser() User {
+	return s.User
+}
+
 func NewSession(user User) *Session {
 	session := &Session{
 		AccessToken: uuid.NewV4().String(),
