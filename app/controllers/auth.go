@@ -29,19 +29,6 @@ func init() {
 	})
 }
 
-func toUser(scanner sq.RowScanner) *models.User {
-	var id, name, createdAt, createdUserID, updatedAt, updatedUserID string
-	scanner.Scan(&id, &name, &createdAt, &createdUserID, &updatedAt, &updatedUserID)
-	return &models.User{
-		ID:            id,
-		Name:          name,
-		CreatedAt:     createdAt,
-		CreatedUserID: createdUserID,
-		UpdatedAt:     updatedAt,
-		UpdatedUserID: updatedUserID,
-	}
-}
-
 func authenticate(_ httprouter.Params, _ url.Values, reader io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 	var loginParam loginParam
 
