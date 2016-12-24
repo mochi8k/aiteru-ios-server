@@ -9,6 +9,11 @@ $ mysql -uroot
 create database aiteru;
 ```
 
+## Go
+```
+$ go run server.go
+```
+
 # Progress
 
 POST: /auth
