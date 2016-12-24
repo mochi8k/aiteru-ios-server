@@ -7,6 +7,8 @@ import (
 
 	"encoding/json"
 	"fmt"
+
+	"github.com/julienschmidt/httprouter"
 	rest "github.com/mochi8k/aiteru-ios-server/app/http"
 	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"github.com/mochi8k/aiteru-ios-server/app/stores"
@@ -21,12 +23,10 @@ type loginParam struct {
 	Address  string `json:"address"`
 }
 
-type auth struct {
-	rest.APIResourceBase
-}
-
 func init() {
-	http.Handle("/auth", rest.APIResourceHandler(auth{}))
+	rest.Register("/auth", map[string]rest.Handler{
+		"POST": authenticate,
+	})
 }
 
 func toUser(scanner sq.RowScanner) *models.User {
@@ -42,8 +42,7 @@ func toUser(scanner sq.RowScanner) *models.User {
 	}
 }
 
-func (auth) Post(url string, queries url.Values, reader io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
-
+func authenticate(_ httprouter.Params, _ url.Values, reader io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 	var loginParam loginParam
 
 	body, _ := ioutil.ReadAll(reader)
@@ -75,4 +74,5 @@ func (auth) Post(url string, queries url.Values, reader io.Reader, _ *models.Ses
 	stores.AddSession(session)
 
 	return rest.Success(http.StatusOK), session
+
 }
