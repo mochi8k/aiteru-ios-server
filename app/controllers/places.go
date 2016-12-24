@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	rest.Register("/v1/places/", map[string]rest.Handler{
+	rest.Register("/v1/places", map[string]rest.Handler{
 		"GET": getPlaces,
 	})
 
@@ -71,7 +71,6 @@ func getPlaces(ps httprouter.Params, queries url.Values, body io.Reader, session
 
 	errorChecker(err)
 
-	// TODO: variable name
 	var places []*models.Place
 
 	for res.Next() {

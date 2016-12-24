@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	rest.Register("/v1/users/", map[string]rest.Handler{
+	rest.Register("/v1/users", map[string]rest.Handler{
 		"GET": getUsers,
 	})
 
