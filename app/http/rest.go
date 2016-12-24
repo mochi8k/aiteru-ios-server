@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
+	"github.com/mochi8k/aiteru-ios-server/app/handlers/router"
 	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"github.com/mochi8k/aiteru-ios-server/app/stores"
 	"io"
@@ -22,43 +24,12 @@ const (
 	options = "OPTIONS"
 )
 
+type Handler func(ps httprouter.Params, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
+
 type APIStatus struct {
 	isSuccess bool
 	code      int
 	message   string
-}
-
-type APIResource interface {
-	Post(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
-	Get(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
-	Put(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
-	Delete(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
-	Patch(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
-	Options(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{})
-}
-
-type APIResourceBase struct{}
-
-func (APIResourceBase) Post(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
-	return FailByCode(http.StatusMethodNotAllowed), nil
-}
-
-func (APIResourceBase) Get(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
-	return FailByCode(http.StatusMethodNotAllowed), nil
-}
-
-func (APIResourceBase) Put(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
-	return FailByCode(http.StatusMethodNotAllowed), nil
-}
-func (APIResourceBase) Delete(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
-	return FailByCode(http.StatusMethodNotAllowed), nil
-}
-func (APIResourceBase) Patch(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
-	return FailByCode(http.StatusMethodNotAllowed), nil
-}
-
-func (APIResourceBase) Options(url string, queries url.Values, body io.Reader, session *models.Session) (APIStatus, interface{}) {
-	return FailByCode(http.StatusMethodNotAllowed), nil
 }
 
 func Success(code int) APIStatus {
@@ -75,7 +46,7 @@ func FailByCode(code int) APIStatus {
 
 // TODO: another class
 func Auth(url, accessToken string) (*models.Session, bool) {
-
+	return nil, false
 	// TODO: matching
 	if url == "/auth" {
 		return nil, false
@@ -90,8 +61,23 @@ func Auth(url, accessToken string) (*models.Session, bool) {
 	return session, false
 }
 
-func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
+func Register(pattern string, requestHandlers map[string]Handler) {
+	for method, requestHandler := range requestHandlers {
+		switch method {
+		case post:
+			router.POST(pattern, apiResourceHandler(requestHandler))
+		case get:
+			router.GET(pattern, apiResourceHandler(requestHandler))
+		case put:
+			router.PUT(pattern, apiResourceHandler(requestHandler))
+		case delete:
+			router.DELETE(pattern, apiResourceHandler(requestHandler))
+		}
+	}
+}
+
+func apiResourceHandler(requestHandler Handler) httprouter.Handle {
+	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 
 		session, isUnauth := Auth(req.URL.Path, req.Header.Get("Authorization"))
 
@@ -114,20 +100,7 @@ func APIResourceHandler(apiResource APIResource) http.HandlerFunc {
 		fmt.Printf("%s: %s\n", req.Method, req.URL.Path)
 		fmt.Printf("Queries: %v\n", req.Form)
 
-		switch req.Method {
-		case post:
-			status, response = apiResource.Post(req.URL.Path, req.Form, reader, session)
-		case get:
-			status, response = apiResource.Get(req.URL.Path, req.Form, reader, session)
-		case put:
-			status, response = apiResource.Put(req.URL.Path, req.Form, reader, session)
-		case delete:
-			status, response = apiResource.Delete(req.URL.Path, req.Form, reader, session)
-		case patch:
-			status, response = apiResource.Patch(req.URL.Path, req.Form, reader, session)
-		case options:
-			status, response = apiResource.Options(req.URL.Path, req.Form, reader, session)
-		}
+		status, response = requestHandler(ps, req.Form, reader, session)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status.code)
