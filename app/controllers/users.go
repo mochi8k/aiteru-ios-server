@@ -19,6 +19,10 @@ func init() {
 	rest.Register("/v1/users/", map[string]rest.Handler{
 		"GET": getUsers,
 	})
+
+	rest.Register("/v1/users/:user-id", map[string]rest.Handler{
+		"GET": getUser,
+	})
 }
 
 func toUser(scanner sq.RowScanner) *models.User {
@@ -34,7 +38,7 @@ func toUser(scanner sq.RowScanner) *models.User {
 	}
 }
 
-func getUsers(ps httprouter.Params, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+func getUsers(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
 
@@ -52,4 +56,23 @@ func getUsers(ps httprouter.Params, queries url.Values, body io.Reader, session 
 	}
 
 	return rest.Success(http.StatusOK), users
+}
+
+func getUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
+	db, err := sql.Open("mysql", "root@/aiteru")
+	errorChecker(err)
+
+	defer db.Close()
+
+	id := ps.ByName("user-id")
+	fmt.Printf("user-id: %s\n", id)
+
+	rowScanner := sq.Select("*").From("users").Where(sq.Eq{"users.id": id}).RunWith(db).QueryRow()
+	user := toUser(rowScanner)
+
+	if user.ID == "" {
+		return rest.FailByCode(http.StatusNotFound), nil
+	}
+
+	return rest.Success(http.StatusOK), user
 }
