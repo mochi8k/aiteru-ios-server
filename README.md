@@ -24,7 +24,7 @@ POST: /v1/users
   "name": "user-name"
 }
 ```
-GET: /v1/users
+GET: /v1/users  
 GET: /v1/users/{user-id}  
 GET: /v1/places  
 GET: /v1/places/{place-id}
