@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	rest "github.com/mochi8k/aiteru-ios-server/app/http"
 	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"io"
@@ -14,12 +15,14 @@ import (
 	"strings"
 )
 
-type places struct {
-	rest.APIResourceBase
-}
-
 func init() {
-	http.Handle("/v1/places/", rest.APIResourceHandler(places{}))
+	rest.Register("/v1/places/", map[string]rest.Handler{
+		"GET": getPlaces,
+	})
+
+	rest.Register("/v1/places/:place-id", map[string]rest.Handler{
+		"GET": getPlace,
+	})
 }
 
 func getDefaultSelectBuilder() sq.SelectBuilder {
@@ -58,25 +61,11 @@ func toPlace(scanner sq.RowScanner) *models.Place {
 	}
 }
 
-func (p places) Get(url string, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
-
+func getPlaces(ps httprouter.Params, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
 
 	defer db.Close()
-
-	if id := url[len("/v1/places/"):]; id != "" {
-		rowScanner := getDefaultSelectBuilder().Where(sq.Eq{"p.id": id}).RunWith(db).QueryRow()
-		place := toPlace(rowScanner)
-
-		fmt.Printf("Place: %+v\n", place)
-		if place.ID == "" {
-			return rest.FailByCode(http.StatusNotFound), nil
-
-		}
-
-		return rest.Success(http.StatusOK), place
-	}
 
 	res, err := getDefaultSelectBuilder().RunWith(db).Query()
 
@@ -96,11 +85,26 @@ func (p places) Get(url string, queries url.Values, body io.Reader, session *mod
 	return rest.Success(http.StatusOK), places
 }
 
-func (p places) Post(url string, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
-	fmt.Println(url)
-	fmt.Println(queries)
-	fmt.Println(body)
-	return rest.Success(http.StatusOK), nil
+func getPlace(ps httprouter.Params, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+	db, err := sql.Open("mysql", "root@/aiteru")
+	errorChecker(err)
+
+	defer db.Close()
+
+	id := ps.ByName("place-id")
+	fmt.Printf("place-id: %s\n", id)
+
+	rowScanner := getDefaultSelectBuilder().Where(sq.Eq{"p.id": id}).RunWith(db).QueryRow()
+	place := toPlace(rowScanner)
+
+	fmt.Printf("Place: %+v\n", place)
+
+	if place.ID == "" {
+		return rest.FailByCode(http.StatusNotFound), nil
+
+	}
+
+	return rest.Success(http.StatusOK), place
 }
 
 func errorChecker(err error) {
