@@ -14,9 +14,18 @@ create database aiteru;
 POST: /auth
 ```
 {
-  "name": "user-name",
-  "address": "e-mail"
+  "name": "user-name"
 }
 ```
+
+POST: /v1/users
+```
+{
+  "name": "user-name"
+}
+```
+GET: /v1/users
+GET: /v1/users/{user-id}
+
 GET: /v1/places  
 GET: /v1/places/{place-id}
