@@ -61,7 +61,7 @@ func toPlace(scanner sq.RowScanner) *models.Place {
 	}
 }
 
-func getPlaces(ps httprouter.Params, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
 
@@ -84,7 +84,7 @@ func getPlaces(ps httprouter.Params, queries url.Values, body io.Reader, session
 	return rest.Success(http.StatusOK), places
 }
 
-func getPlace(ps httprouter.Params, queries url.Values, body io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
 
