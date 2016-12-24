@@ -5,19 +5,22 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
 
+	"encoding/json"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	rest "github.com/mochi8k/aiteru-ios-server/app/http"
 	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	_ "time"
+	"time"
 )
 
 func init() {
 	rest.Register("/v1/users", map[string]rest.Handler{
-		"GET": getUsers,
+		"POST": createUser,
+		"GET":  getUsers,
 	})
 
 	rest.Register("/v1/users/:user-id", map[string]rest.Handler{
@@ -36,6 +39,46 @@ func toUser(scanner sq.RowScanner) *models.User {
 		UpdatedAt:     updatedAt,
 		UpdatedUserID: updatedUserID,
 	}
+}
+
+type createParam struct {
+	UserName string `json:"name"`
+}
+
+func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+	var createParam createParam
+	body, _ := ioutil.ReadAll(reader)
+
+	if err := json.Unmarshal(body, &createParam); err != nil {
+		return rest.Fail(http.StatusBadRequest, err.Error()), err
+	}
+
+	db, err := sql.Open("mysql", "root@/aiteru")
+	errorChecker(err)
+
+	defer db.Close()
+
+	user := session.GetUser()
+	createUserID := user.GetID()
+
+	sq.
+		Insert("users").
+		Columns("user_name, created_at, created_by").
+		Values(createParam.UserName, time.Now(), createUserID).
+		RunWith(db).
+		QueryRow()
+
+	createdUser := toUser(
+		sq.
+			Select("*").
+			From("users").
+			Where(sq.Eq{"users.user_name": createParam.UserName}).
+			RunWith(db).QueryRow(),
+	)
+
+	fmt.Printf("User: %+v\n", createdUser)
+
+	return rest.Success(http.StatusCreated), createdUser
 }
 
 func getUsers(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
