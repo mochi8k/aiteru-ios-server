@@ -55,6 +55,61 @@ func getDefaultSelectBuilder() sq.SelectBuilder {
 		GroupBy("p.id, u3.user_name, u4.user_name")
 }
 
+type createPlaceParam struct {
+	Name string `json:"name"`
+}
+
+func createPlace(_ httprouter.Params, _ url.Values, reader io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+	var createPlaceParam createPlaceParam
+	body, _ := ioutil.ReadAll(reader)
+
+	if err := json.Unmarshal(body, &createPlaceParam); err != nil {
+		return rest.Fail(http.StatusBadRequest, err.Error()), err
+	}
+
+	db, err := sql.Open("mysql", "root@/aiteru")
+	errorChecker(err)
+
+	defer db.Close()
+
+	// user := session.GetUser()
+	// createUserID := user.GetID()
+
+	// // TODO: transaction
+	// sq.
+	// 	Insert("places").
+	// 	Columns("place_name, created_at, created_by").
+	// 	Values(createPlaceParam.Name, time.Now(), createUserID).
+	// 	RunWith(db).
+	// 	QueryRow()
+
+	// sq.
+	// 	Insert("places").
+	// 	Columns("place_name, created_at, created_by").
+	// 	Values(createPlaceParam.Name, time.Now(), createUserID).
+	// 	RunWith(db).
+	// 	QueryRow()
+
+	// sq.
+	// 	Insert("places").
+	// 	Columns("place_name, created_at, created_by").
+	// 	Values(createPlaceParam.Name, time.Now(), createUserID).
+	// 	RunWith(db).
+	// 	QueryRow()
+
+	// createdUser := toUser(
+	// 	sq.
+	// 		Select("*").
+	// 		From("users").
+	// 		Where(sq.Eq{"users.user_name": createPlaceParam.PlaceName}).
+	// 		RunWith(db).QueryRow(),
+	// )
+
+	// fmt.Printf("User: %+v\n", createdUser)
+
+	return rest.Success(http.StatusCreated), nil
+}
+
 func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
