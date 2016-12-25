@@ -87,8 +87,12 @@ func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 	id := ps.ByName("place-id")
 	fmt.Printf("place-id: %s\n", id)
 
-	rowScanner := getDefaultSelectBuilder().Where(sq.Eq{"p.id": id}).RunWith(db).QueryRow()
-	place := toPlace(rowScanner)
+	place := toPlace(
+		getDefaultSelectBuilder().
+			Where(sq.Eq{"p.id": id}).
+			RunWith(db).
+			QueryRow(),
+	)
 
 	fmt.Printf("Place: %+v\n", place)
 

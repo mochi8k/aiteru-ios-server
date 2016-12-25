@@ -99,8 +99,14 @@ func getUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session)
 	id := ps.ByName("user-id")
 	fmt.Printf("user-id: %s\n", id)
 
-	rowScanner := sq.Select("*").From("users").Where(sq.Eq{"users.id": id}).RunWith(db).QueryRow()
-	user := toUser(rowScanner)
+	user := toUser(
+		sq.
+			Select("*").
+			From("users").
+			Where(sq.Eq{"users.id": id}).
+			RunWith(db).
+			QueryRow(),
+	)
 
 	if user.ID == "" {
 		return rest.FailByCode(http.StatusNotFound), nil
