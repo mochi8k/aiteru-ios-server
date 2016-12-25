@@ -130,7 +130,9 @@ func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 
 	defer res.Close()
 
-	return rest.Success(http.StatusOK), places
+	return rest.Success(http.StatusOK), map[string][]*models.Place{
+		"places": places,
+	}
 }
 
 func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
@@ -156,7 +158,9 @@ func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 
 	}
 
-	return rest.Success(http.StatusOK), place
+	return rest.Success(http.StatusOK), map[string]*models.Place{
+		"place": place,
+	}
 }
 
 type statusParam struct {
@@ -203,7 +207,9 @@ func postStatus(ps httprouter.Params, _ url.Values, reader io.Reader, session *m
 
 	fmt.Printf("PlaceStatus: %+v\n", placeStatus)
 
-	return rest.Success(http.StatusCreated), placeStatus
+	return rest.Success(http.StatusCreated), map[string]*models.PlaceStatus{
+		"status": placeStatus,
+	}
 }
 
 func getStatus(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
@@ -232,5 +238,8 @@ func getStatus(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Sessio
 		return rest.FailByCode(http.StatusNotFound), nil
 	}
 
-	return rest.Success(http.StatusOK), placeStatus
+	return rest.Success(http.StatusOK), map[string]*models.PlaceStatus{
+		"status": placeStatus,
+	}
+
 }

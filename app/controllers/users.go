@@ -67,7 +67,9 @@ func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *mo
 
 	fmt.Printf("User: %+v\n", createdUser)
 
-	return rest.Success(http.StatusCreated), createdUser
+	return rest.Success(http.StatusCreated), map[string]*models.User{
+		"user": createdUser,
+	}
 }
 
 func getUsers(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
@@ -87,7 +89,9 @@ func getUsers(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session)
 		fmt.Printf("User: %+v\n", user)
 	}
 
-	return rest.Success(http.StatusOK), users
+	return rest.Success(http.StatusOK), map[string][]*models.User{
+		"users": users,
+	}
 }
 
 func getUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
@@ -112,5 +116,7 @@ func getUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session)
 		return rest.FailByCode(http.StatusNotFound), nil
 	}
 
-	return rest.Success(http.StatusOK), user
+	return rest.Success(http.StatusOK), map[string]*models.User{
+		"user": user,
+	}
 }

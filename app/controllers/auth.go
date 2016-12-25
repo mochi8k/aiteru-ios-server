@@ -2,20 +2,22 @@ package controllers
 
 import (
 	"database/sql"
+
 	sq "github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
 
 	"encoding/json"
 	"fmt"
 
-	"github.com/julienschmidt/httprouter"
-	rest "github.com/mochi8k/aiteru-ios-server/app/http"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
-	"github.com/mochi8k/aiteru-ios-server/app/stores"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/julienschmidt/httprouter"
+	rest "github.com/mochi8k/aiteru-ios-server/app/http"
+	"github.com/mochi8k/aiteru-ios-server/app/models"
+	"github.com/mochi8k/aiteru-ios-server/app/stores"
 )
 
 type loginParam struct {
@@ -59,6 +61,8 @@ func authenticate(_ httprouter.Params, _ url.Values, reader io.Reader, _ *models
 	session := models.NewSession(*user)
 	stores.AddSession(session)
 
-	return rest.Success(http.StatusOK), session
+	return rest.Success(http.StatusOK), map[string]*models.Session{
+		"session": session,
+	}
 
 }
