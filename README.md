@@ -1,5 +1,4 @@
 # Getting Started
-
 ## MySQL
 ```
 $ brew install mysql
@@ -16,13 +15,14 @@ $ go run server.go
 
 # Progress
 
+### /auth
 POST: /auth
 ```
 {
   "name": "user-name"
 }
 ```
-
+### /users
 POST: /v1/users
 ```
 {
@@ -31,5 +31,13 @@ POST: /v1/users
 ```
 GET: /v1/users  
 GET: /v1/users/{user-id}  
+### /places
 GET: /v1/places  
-GET: /v1/places/{place-id}
+GET: /v1/places/{place-id}  
+POST: /v1/places/{place-id}/status
+```
+{
+  "isOpen": true
+}
+```
+GET: /v1/places/{place-id}/status  
