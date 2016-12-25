@@ -31,6 +31,7 @@ func init() {
 
 	rest.Register("/v1/places/:place-id/status", map[string]rest.Handler{
 		"POST": postStatus,
+		"GET":  getStatus,
 	})
 }
 
@@ -164,7 +165,7 @@ func postStatus(ps httprouter.Params, _ url.Values, reader io.Reader, session *m
 			Select("*").
 			From("place_status as ps").
 			Where(sq.Eq{"ps.place_id": placeID}).
-			OrderBy("ps.updated_by DESC").
+			OrderBy("ps.updated_at DESC").
 			Limit(1).
 			RunWith(db).
 			QueryRow(),
@@ -173,6 +174,35 @@ func postStatus(ps httprouter.Params, _ url.Values, reader io.Reader, session *m
 	fmt.Printf("PlaceStatus: %+v\n", placeStatus)
 
 	return rest.Success(http.StatusCreated), placeStatus
+}
+
+func getStatus(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
+	db, err := sql.Open("mysql", "root@/aiteru")
+	errorChecker(err)
+
+	defer db.Close()
+
+	placeID := ps.ByName("place-id")
+	fmt.Printf("place-id: %s\n", placeID)
+
+	placeStatus := toPlaceStatus(
+		sq.
+			Select("*").
+			From("place_status").
+			Where(sq.Eq{"place_id": placeID}).
+			OrderBy("updated_at DESC").
+			Limit(1).
+			RunWith(db).
+			QueryRow(),
+	)
+
+	fmt.Printf("PlaceStatus: %+v\n", placeStatus)
+
+	if placeStatus.PlaceID == "" {
+		return rest.FailByCode(http.StatusNotFound), nil
+	}
+
+	return rest.Success(http.StatusOK), placeStatus
 }
 
 func errorChecker(err error) {
