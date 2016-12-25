@@ -2,17 +2,22 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"time"
+
 	sq "github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
 
-	"fmt"
-	"github.com/julienschmidt/httprouter"
-	rest "github.com/mochi8k/aiteru-ios-server/app/http"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/julienschmidt/httprouter"
+	rest "github.com/mochi8k/aiteru-ios-server/app/http"
+	"github.com/mochi8k/aiteru-ios-server/app/models"
 )
 
 func init() {
@@ -22,6 +27,10 @@ func init() {
 
 	rest.Register("/v1/places/:place-id", map[string]rest.Handler{
 		"GET": getPlace,
+	})
+
+	rest.Register("/v1/places/:place-id/status", map[string]rest.Handler{
+		"POST": postStatus,
 	})
 }
 
@@ -58,6 +67,19 @@ func toPlace(scanner sq.RowScanner) *models.Place {
 		CreatedUserID:   createdUserID,
 		UpdatedAt:       updatedAt,
 		UpdatedUserID:   updatedUserID,
+	}
+}
+
+// TODO: define interface
+func toPlaceStatus(scanner sq.RowScanner) *models.PlaceStatus {
+	var placeID, updatedAt, updatedUserID string
+	var isOpen bool
+	scanner.Scan(&placeID, &isOpen, &updatedAt, &updatedUserID)
+	return &models.PlaceStatus{
+		PlaceID:       placeID,
+		IsOpen:        isOpen,
+		UpdatedAt:     updatedAt,
+		UpdatedUserID: updatedUserID,
 	}
 }
 
@@ -104,6 +126,53 @@ func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 	}
 
 	return rest.Success(http.StatusOK), place
+}
+
+type statusParam struct {
+	IsOpen bool `json:"isOpen"`
+}
+
+func postStatus(ps httprouter.Params, _ url.Values, reader io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+	var statusParam statusParam
+	body, _ := ioutil.ReadAll(reader)
+
+	if err := json.Unmarshal(body, &statusParam); err != nil {
+		return rest.Fail(http.StatusBadRequest, err.Error()), err
+	}
+
+	db, err := sql.Open("mysql", "root@/aiteru")
+	errorChecker(err)
+
+	defer db.Close()
+
+	placeID := ps.ByName("place-id")
+	fmt.Printf("place-id: %s\n", placeID)
+
+	user := session.GetUser()
+	updatedUserID := user.GetID()
+
+	// TODO: 権限チェック
+	sq.
+		Insert("place_status").
+		Columns("place_id, is_open, updated_at, updated_by").
+		Values(placeID, statusParam.IsOpen, time.Now(), updatedUserID).
+		RunWith(db).
+		QueryRow()
+
+	placeStatus := toPlaceStatus(
+		sq.
+			Select("*").
+			From("place_status as ps").
+			Where(sq.Eq{"ps.place_id": placeID}).
+			OrderBy("ps.updated_by DESC").
+			Limit(1).
+			RunWith(db).
+			QueryRow(),
+	)
+
+	fmt.Printf("PlaceStatus: %+v\n", placeStatus)
+
+	return rest.Success(http.StatusCreated), placeStatus
 }
 
 func errorChecker(err error) {
