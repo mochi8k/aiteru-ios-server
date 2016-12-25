@@ -2,19 +2,21 @@ package controllers
 
 import (
 	"database/sql"
+
 	sq "github.com/Masterminds/squirrel"
 	_ "github.com/go-sql-driver/mysql"
 
 	"encoding/json"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
-	rest "github.com/mochi8k/aiteru-ios-server/app/http"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/julienschmidt/httprouter"
+	rest "github.com/mochi8k/aiteru-ios-server/app/http"
+	"github.com/mochi8k/aiteru-ios-server/app/models"
 )
 
 func init() {
@@ -26,19 +28,6 @@ func init() {
 	rest.Register("/v1/users/:user-id", map[string]rest.Handler{
 		"GET": getUser,
 	})
-}
-
-func toUser(scanner sq.RowScanner) *models.User {
-	var id, name, createdAt, createdUserID, updatedAt, updatedUserID string
-	scanner.Scan(&id, &name, &createdAt, &createdUserID, &updatedAt, &updatedUserID)
-	return &models.User{
-		ID:            id,
-		Name:          name,
-		CreatedAt:     createdAt,
-		CreatedUserID: createdUserID,
-		UpdatedAt:     updatedAt,
-		UpdatedUserID: updatedUserID,
-	}
 }
 
 type createParam struct {
