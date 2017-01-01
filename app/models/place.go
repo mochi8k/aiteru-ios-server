@@ -11,3 +11,11 @@ type Place struct {
 	UpdatedUserID   string       `json:"updatedUserId"`
 	Status          *PlaceStatus `json:"status"`
 }
+
+func (p Place) GetID() string {
+	return p.ID
+}
+
+func (p *Place) SetStatus(placeStatus *PlaceStatus) {
+	p.Status = placeStatus
+}

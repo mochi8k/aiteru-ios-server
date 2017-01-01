@@ -6,3 +6,7 @@ type PlaceStatus struct {
 	UpdatedAt     string `json:"updatedAt"`
 	UpdatedUserID string `json:"updatedUserId"`
 }
+
+func (p PlaceStatus) GetPlaceID() string {
+	return p.PlaceID
+}

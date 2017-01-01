@@ -124,8 +124,22 @@ func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 
 	for res.Next() {
 		place := toPlace(res)
-		places = append(places, place)
+
+		// TODO: should be accessed once
+		placeStatus := toPlaceStatus(
+			sq.
+				Select("*").
+				From("place_status").
+				Where(sq.Eq{"place_id": place.GetID()}).
+				OrderBy("updated_at DESC").
+				Limit(1).
+				RunWith(db).
+				QueryRow(),
+		)
+		place.SetStatus(placeStatus)
 		fmt.Printf("Place: %+v\n", place)
+
+		places = append(places, place)
 	}
 
 	defer res.Close()
@@ -151,12 +165,24 @@ func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 			QueryRow(),
 	)
 
-	fmt.Printf("Place: %+v\n", place)
-
 	if place.ID == "" {
 		return rest.FailByCode(http.StatusNotFound), nil
 
 	}
+
+	// TODO: should be accessed once
+	placeStatus := toPlaceStatus(
+		sq.
+			Select("*").
+			From("place_status").
+			Where(sq.Eq{"place_id": place.GetID()}).
+			OrderBy("updated_at DESC").
+			Limit(1).
+			RunWith(db).
+			QueryRow(),
+	)
+	place.SetStatus(placeStatus)
+	fmt.Printf("Place: %+v\n", place)
 
 	return rest.Success(http.StatusOK), map[string]*models.Place{
 		"place": place,
