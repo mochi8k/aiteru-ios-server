@@ -32,6 +32,16 @@ POST: /v1/users
 GET: /v1/users  
 GET: /v1/users/{user-id}  
 ### /places
+POST: /v1/places
+```
+{
+  "name": "place-name",
+  "owners": ["user-id1", "user-id2"],
+  "collaborators": ["user-id1", "user-id2"]
+}
+```
+※owners, collaboratorsにはデフォルトで作成者が追加される.
+
 GET: /v1/places  
 GET: /v1/places/{place-id}  
 POST: /v1/places/{place-id}/status
