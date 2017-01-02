@@ -21,7 +21,8 @@ import (
 
 func init() {
 	rest.Register("/v1/places", map[string]rest.Handler{
-		"GET": getPlaces,
+		"POST": createPlace,
+		"GET":  getPlaces,
 	})
 
 	rest.Register("/v1/places/:place-id", map[string]rest.Handler{
@@ -56,7 +57,9 @@ func getDefaultSelectBuilder() sq.SelectBuilder {
 }
 
 type createPlaceParam struct {
-	Name string `json:"name"`
+	Name            string   `json:"name"`
+	OwnerIDs        []string `json:"owners"`
+	CollaboratorIDs []string `json:"collaborators"`
 }
 
 func createPlace(_ httprouter.Params, _ url.Values, reader io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
@@ -67,47 +70,59 @@ func createPlace(_ httprouter.Params, _ url.Values, reader io.Reader, session *m
 		return rest.Fail(http.StatusBadRequest, err.Error()), err
 	}
 
+	if createPlaceParam.Name == "" {
+		return rest.FailByCode(http.StatusBadRequest), nil
+	}
+
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
 
 	defer db.Close()
 
-	// user := session.GetUser()
-	// createUserID := user.GetID()
+	user := session.GetUser()
+	createUserID := user.GetID()
+	createPlaceParam.OwnerIDs = append(createPlaceParam.OwnerIDs, createUserID)
+	createPlaceParam.CollaboratorIDs = append(createPlaceParam.CollaboratorIDs, createUserID)
 
-	// // TODO: transaction
-	// sq.
-	// 	Insert("places").
-	// 	Columns("place_name, created_at, created_by").
-	// 	Values(createPlaceParam.Name, time.Now(), createUserID).
-	// 	RunWith(db).
-	// 	QueryRow()
+	// TODO: transaction
+	sq.
+		Insert("places").
+		Columns("place_name, created_at, created_by").
+		Values(createPlaceParam.Name, time.Now(), createUserID).
+		RunWith(db).
+		QueryRow()
 
-	// sq.
-	// 	Insert("places").
-	// 	Columns("place_name, created_at, created_by").
-	// 	Values(createPlaceParam.Name, time.Now(), createUserID).
-	// 	RunWith(db).
-	// 	QueryRow()
+	var createdPlaceID string
 
-	// sq.
-	// 	Insert("places").
-	// 	Columns("place_name, created_at, created_by").
-	// 	Values(createPlaceParam.Name, time.Now(), createUserID).
-	// 	RunWith(db).
-	// 	QueryRow()
+	sq.
+		Select("id").
+		From("places").
+		Where(sq.Eq{"place_name": createPlaceParam.Name}).
+		RunWith(db).QueryRow().Scan(&createdPlaceID)
 
-	// createdUser := toUser(
-	// 	sq.
-	// 		Select("*").
-	// 		From("users").
-	// 		Where(sq.Eq{"users.user_name": createPlaceParam.PlaceName}).
-	// 		RunWith(db).QueryRow(),
-	// )
+	for _, ownerID := range createPlaceParam.OwnerIDs {
+		sq.
+			Insert("place_owners").
+			Columns("place_id, owner_id").
+			Values(createdPlaceID, ownerID).
+			RunWith(db).
+			QueryRow()
+	}
 
-	// fmt.Printf("User: %+v\n", createdUser)
+	for _, collaboratorID := range createPlaceParam.CollaboratorIDs {
+		sq.
+			Insert("place_collaborators").
+			Columns("place_id, collaborator_id").
+			Values(createdPlaceID, collaboratorID).
+			RunWith(db).
+			QueryRow()
+	}
 
-	return rest.Success(http.StatusCreated), nil
+	createdPlace := selectPlace(db, createdPlaceID)
+
+	fmt.Printf("CreatedPlace: %+v\n", createdPlace)
+
+	return rest.Success(http.StatusCreated), createdPlace
 }
 
 func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
@@ -158,31 +173,12 @@ func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 	id := ps.ByName("place-id")
 	fmt.Printf("place-id: %s\n", id)
 
-	place := toPlace(
-		getDefaultSelectBuilder().
-			Where(sq.Eq{"p.id": id}).
-			RunWith(db).
-			QueryRow(),
-	)
+	place := selectPlace(db, id)
 
 	if place.ID == "" {
 		return rest.FailByCode(http.StatusNotFound), nil
 
 	}
-
-	// TODO: should be accessed once
-	placeStatus := toPlaceStatus(
-		sq.
-			Select("*").
-			From("place_status").
-			Where(sq.Eq{"place_id": place.GetID()}).
-			OrderBy("updated_at DESC").
-			Limit(1).
-			RunWith(db).
-			QueryRow(),
-	)
-	place.SetStatus(placeStatus)
-	fmt.Printf("Place: %+v\n", place)
 
 	return rest.Success(http.StatusOK), map[string]*models.Place{
 		"place": place,
@@ -268,4 +264,29 @@ func getStatus(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Sessio
 		"status": placeStatus,
 	}
 
+}
+
+func selectPlace(db *sql.DB, placeID string) *models.Place {
+	place := toPlace(
+		getDefaultSelectBuilder().
+			Where(sq.Eq{"p.id": placeID}).
+			RunWith(db).
+			QueryRow(),
+	)
+
+	// TODO: should be accessed once
+	placeStatus := toPlaceStatus(
+		sq.
+			Select("*").
+			From("place_status").
+			Where(sq.Eq{"place_id": place.GetID()}).
+			OrderBy("updated_at DESC").
+			Limit(1).
+			RunWith(db).
+			QueryRow(),
+	)
+	place.SetStatus(placeStatus)
+
+	fmt.Printf("Place: %+v\n", place)
+	return place
 }

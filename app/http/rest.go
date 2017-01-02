@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
-	"github.com/mochi8k/aiteru-ios-server/app/handlers/router"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
-	"github.com/mochi8k/aiteru-ios-server/app/stores"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/mochi8k/aiteru-ios-server/app/handlers/router"
+	"github.com/mochi8k/aiteru-ios-server/app/models"
+	"github.com/mochi8k/aiteru-ios-server/app/stores"
 )
 
 const (
@@ -55,6 +56,7 @@ func Auth(url, accessToken string) (*models.Session, bool) {
 	session := stores.GetSession(accessToken)
 
 	if session == nil {
+		fmt.Printf("Session does not exist\n url: %s\n accessToken: %s\n", url, accessToken)
 		return nil, true
 	}
 
@@ -78,6 +80,8 @@ func Register(pattern string, requestHandlers map[string]Handler) {
 
 func apiResourceHandler(requestHandler Handler) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+		fmt.Printf("RequestURI: %s\n", req.URL.Path)
 
 		session, isUnauth := Auth(req.URL.Path, req.Header.Get("Authorization"))
 
