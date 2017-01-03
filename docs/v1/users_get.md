@@ -7,7 +7,7 @@
 | Key           | Value            |
 |---------------|------------------|
 | Content-Type  | application/json |
-| Authorization | {AccessToken}    |
+| Authorization | {access_token}   |
 
 ## Body
 
