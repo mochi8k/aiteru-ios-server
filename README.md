@@ -29,7 +29,7 @@ POST: /v1/users
   "name": "user-name"
 }
 ```
-GET: /v1/users  
+* [GET /v1/users](docs/v1/users_get.md) - ユーザー情報の一覧を取得
 GET: /v1/users/{user-id}  
 ### /places
 POST: /v1/places
