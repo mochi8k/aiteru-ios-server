@@ -13,26 +13,28 @@ create database aiteru;
 $ go run server.go
 ```
 
-# Progress
+# API
 
-### /auth
+### Auth
 POST: /auth
 ```
 {
   "name": "user-name"
 }
 ```
-### /users
-POST: /v1/users
+### Users
+* [POST /v1/users](docs/v1/users_post.md) - ユーザー情報を登録
 ```
 {
   "name": "user-name"
 }
 ```
 * [GET /v1/users](docs/v1/users_get.md) - ユーザー情報の一覧を取得
+* [GET /v1/users/:user_id](docs/v1/users_id_get.md) - ユーザー情報を取得
 
-GET: /v1/users/{user-id}  
-### /places
+
+
+### Places
 POST: /v1/places
 ```
 {
