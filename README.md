@@ -16,12 +16,13 @@ $ go run server.go
 # API
 
 ### Auth
-POST: /auth
+* [POST /auth](docs/v1/auth_post.md) - 認証
 ```
 {
   "name": "user-name"
 }
 ```
+
 ### Users
 * [POST /v1/users](docs/v1/users_post.md) - ユーザー情報を登録
 ```
@@ -31,7 +32,6 @@ POST: /auth
 ```
 * [GET /v1/users](docs/v1/users_get.md) - ユーザー情報の一覧を取得
 * [GET /v1/users/:user_id](docs/v1/users_id_get.md) - ユーザー情報を取得
-
 
 
 ### Places
