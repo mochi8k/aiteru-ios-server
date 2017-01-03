@@ -35,7 +35,7 @@ POST: /auth
 
 
 ### Places
-POST: /v1/places
+* [POST /v1/places](docs/v1/places_post.md) - 場所情報を登録
 ```
 {
   "name": "place-name",
@@ -45,12 +45,12 @@ POST: /v1/places
 ```
 ※owners, collaboratorsにはデフォルトで作成者が追加される.
 
-GET: /v1/places  
-GET: /v1/places/{place-id}  
-POST: /v1/places/{place-id}/status
+* [GET /v1/places](docs/v1/places_get.md) - 場所情報の一覧を取得
+* [GET /v1/places/:place_id](docs/v1/places_id_get.md) - 場所情報を取得
+* [POST /v1/places/:place_id/status](docs/v1/places_id_status_post.md) - 場所情報に紐づく状態を登録
 ```
 {
   "isOpen": true
 }
 ```
-GET: /v1/places/{place-id}/status  
+* [GET /v1/places/:place_id/status](docs/v1/places_id_status_get.md) - 場所情報に紐づく状態を取得
