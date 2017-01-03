@@ -122,7 +122,9 @@ func createPlace(_ httprouter.Params, _ url.Values, reader io.Reader, session *m
 
 	fmt.Printf("CreatedPlace: %+v\n", createdPlace)
 
-	return rest.Success(http.StatusCreated), createdPlace
+	return rest.Success(http.StatusCreated), map[string]*models.Place{
+		"place": createdPlace,
+	}
 }
 
 func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
