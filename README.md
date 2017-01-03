@@ -17,11 +17,6 @@ $ go run server.go
 
 ### Auth
 * [POST /auth](docs/v1/auth_post.md) - 認証
-```
-{
-  "name": "user-name"
-}
-```
 
 ### Users
 * [POST /v1/users](docs/v1/users_post.md) - ユーザー情報を登録

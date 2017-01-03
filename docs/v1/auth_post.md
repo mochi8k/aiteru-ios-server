@@ -21,8 +21,8 @@
 ```
 {
   "session": {
-    "AccessToken": "access-token",
-    "User": {
+    "AccessToken": "access-token", // キーを"accessToken"に変更予定
+    "user": {
       "id": "2",
       "name": "user-name",
       "createdAt": "2017-01-01 00:00:00",
