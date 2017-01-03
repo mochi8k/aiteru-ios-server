@@ -25,11 +25,6 @@ $ go run server.go
 
 ### Users
 * [POST /v1/users](docs/v1/users_post.md) - ユーザー情報を登録
-```
-{
-  "name": "user-name"
-}
-```
 * [GET /v1/users](docs/v1/users_get.md) - ユーザー情報の一覧を取得
 * [GET /v1/users/:user_id](docs/v1/users_id_get.md) - ユーザー情報を取得
 

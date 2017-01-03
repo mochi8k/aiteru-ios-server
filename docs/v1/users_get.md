@@ -1,9 +1,8 @@
-# GET: /v1/users
+# GET  /v1/users
 
 ユーザー情報の一覧を取得
 
 ## Headers
-
 
 | Key           | Value            |
 |---------------|------------------|
@@ -15,6 +14,7 @@
 なし
 
 ## Response
+
 ```
 {
   "users": [
