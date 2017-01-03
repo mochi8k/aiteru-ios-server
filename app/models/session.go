@@ -5,8 +5,8 @@ import (
 )
 
 type Session struct {
-	AccessToken string
-	User        User
+	AccessToken string // `json:"accessToken"`
+	User        User   `json:"user"`
 }
 
 func (s Session) GetAccessToken() string {
