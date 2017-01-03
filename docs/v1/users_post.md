@@ -7,7 +7,7 @@
 | Key           | Value            |
 |---------------|------------------|
 | Content-Type  | application/json |
-| Authorization | {access_token}    |
+| Authorization | {access_token}   |
 
 ## Body
 
@@ -15,7 +15,6 @@
 {
   "name": "user-name"
 }
-
 ```
 
 ## Response
@@ -30,4 +29,5 @@
     "updatedAt": "",
     "updatedUserId": ""
   }
-}```
+}
+```
