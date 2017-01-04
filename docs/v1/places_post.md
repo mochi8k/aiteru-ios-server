@@ -34,7 +34,7 @@
     "collaboratorIds": [
       "user-id1"
     ],
-    "createdAt": "2017-01-01 00:00:00",
+    "createdAt": "2017-01-01T00:00:00Z",
     "createdUserId": "1",
     "updatedAt": "",
     "updatedUserId": "",

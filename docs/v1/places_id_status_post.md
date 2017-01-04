@@ -25,7 +25,7 @@
   "status": {
     "placeId": "1",
     "isOpen": true,
-    "updatedAt": "2017-01-01 00:00:00",
+    "updatedAt": "2017-01-01T00:00:00Z",
     "updatedUserId": "1"
   }
 }
