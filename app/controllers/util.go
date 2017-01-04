@@ -2,10 +2,23 @@ package controllers
 
 import (
 	"strings"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/mochi8k/aiteru-ios-server/app/models"
 )
+
+const (
+	parseFormat = "2006-01-02 15:04:05"
+)
+
+func toRFC3339(dateTime string) string {
+	if dateTime == "" {
+		return ""
+	}
+	t, _ := time.Parse(parseFormat, dateTime)
+	return t.Format(time.RFC3339)
+}
 
 func toUser(scanner sq.RowScanner) *models.User {
 	var id, name, createdAt, createdUserID, updatedAt, updatedUserID string
@@ -13,9 +26,9 @@ func toUser(scanner sq.RowScanner) *models.User {
 	return &models.User{
 		ID:            id,
 		Name:          name,
-		CreatedAt:     createdAt,
+		CreatedAt:     toRFC3339(createdAt),
 		CreatedUserID: createdUserID,
-		UpdatedAt:     updatedAt,
+		UpdatedAt:     toRFC3339(updatedAt),
 		UpdatedUserID: updatedUserID,
 	}
 }
@@ -28,9 +41,9 @@ func toPlace(scanner sq.RowScanner) *models.Place {
 		Name:            placeName,
 		OwnerIDs:        strings.Split(ownerIDs, ","),
 		CollaboratorIDs: strings.Split(collaboratorIDs, ","),
-		CreatedAt:       createdAt,
+		CreatedAt:       toRFC3339(createdAt),
 		CreatedUserID:   createdUserID,
-		UpdatedAt:       updatedAt,
+		UpdatedAt:       toRFC3339(updatedAt),
 		UpdatedUserID:   updatedUserID,
 	}
 }
@@ -42,7 +55,7 @@ func toPlaceStatus(scanner sq.RowScanner) *models.PlaceStatus {
 	return &models.PlaceStatus{
 		PlaceID:       placeID,
 		IsOpen:        isOpen,
-		UpdatedAt:     updatedAt,
+		UpdatedAt:     toRFC3339(updatedAt),
 		UpdatedUserID: updatedUserID,
 	}
 }
