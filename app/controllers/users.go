@@ -27,18 +27,19 @@ func init() {
 
 	rest.Register("/v1/users/:user-id", map[string]rest.Handler{
 		"GET": getUser,
+		"PUT": updateUser,
 	})
 }
 
-type createParam struct {
+type bodyParam struct {
 	UserName string `json:"name"`
 }
 
 func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
-	var createParam createParam
+	var bodyParam bodyParam
 	body, _ := ioutil.ReadAll(reader)
 
-	if err := json.Unmarshal(body, &createParam); err != nil {
+	if err := json.Unmarshal(body, &bodyParam); err != nil {
 		return rest.Fail(http.StatusBadRequest, err.Error()), err
 	}
 
@@ -53,7 +54,7 @@ func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *mo
 	sq.
 		Insert("users").
 		Columns("user_name, created_at, created_by").
-		Values(createParam.UserName, time.Now(), createUserID).
+		Values(bodyParam.UserName, time.Now(), createUserID).
 		RunWith(db).
 		QueryRow()
 
@@ -61,7 +62,7 @@ func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *mo
 		sq.
 			Select("*").
 			From("users").
-			Where(sq.Eq{"users.user_name": createParam.UserName}).
+			Where(sq.Eq{"users.user_name": bodyParam.UserName}).
 			RunWith(db).QueryRow(),
 	)
 
@@ -69,6 +70,52 @@ func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *mo
 
 	return rest.Success(http.StatusCreated), map[string]*models.User{
 		"user": createdUser,
+	}
+}
+
+func updateUser(ps httprouter.Params, _ url.Values, reader io.Reader, session *models.Session) (rest.APIStatus, interface{}) {
+	var bodyParam bodyParam
+	body, _ := ioutil.ReadAll(reader)
+
+	if err := json.Unmarshal(body, &bodyParam); err != nil {
+		return rest.Fail(http.StatusBadRequest, err.Error()), err
+	}
+
+	db, err := sql.Open("mysql", "root@/aiteru")
+	errorChecker(err)
+
+	defer db.Close()
+
+	id := ps.ByName("user-id")
+
+	sq.
+		Update("users").
+		SetMap(sq.Eq{
+			"user_name":  bodyParam.UserName,
+			"updated_at": time.Now(),
+			"updated_by": session.GetUser().GetID(),
+		}).
+		Where(sq.Eq{"users.id": id}).
+		RunWith(db).
+		QueryRow()
+
+	updatedUser := toUser(
+		sq.
+			Select("*").
+			From("users").
+			Where(sq.Eq{"users.id": id}).
+			RunWith(db).
+			QueryRow(),
+	)
+
+	if updatedUser.ID == "" {
+		return rest.FailByCode(http.StatusNotFound), nil
+	}
+
+	fmt.Printf("User: %+v\n", updatedUser)
+
+	return rest.Success(http.StatusOK), map[string]*models.User{
+		"user": updatedUser,
 	}
 }
 
