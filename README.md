@@ -22,6 +22,7 @@ $ go run server.go
 * [POST /v1/users](docs/v1/users_post.md) - ユーザー情報を登録
 * [GET /v1/users](docs/v1/users_get.md) - ユーザー情報の一覧を取得
 * [GET /v1/users/:user_id](docs/v1/users_id_get.md) - ユーザー情報を取得
+* [PUT /v1/users/:user_id](docs/v1/users_id_put.md) - ユーザー情報を更新
 
 
 ### Places
