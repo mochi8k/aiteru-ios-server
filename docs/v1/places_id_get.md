@@ -1,6 +1,6 @@
 # GET  /v1/places/:place_id
 
-位置情報を取得
+場所情報を取得
 
 ## Headers
 
