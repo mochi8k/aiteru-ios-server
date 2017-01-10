@@ -17,6 +17,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	rest "github.com/mochi8k/aiteru-ios-server/app/http"
 	"github.com/mochi8k/aiteru-ios-server/app/models"
+	. "github.com/mochi8k/aiteru-ios-server/config"
 )
 
 func init() {
@@ -74,7 +75,7 @@ func createPlace(_ httprouter.Params, _ url.Values, reader io.Reader, session *m
 		return rest.FailByCode(http.StatusBadRequest), nil
 	}
 
-	db, err := sql.Open("mysql", "root@/aiteru")
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
 	errorChecker(err)
 
 	defer db.Close()
@@ -128,7 +129,7 @@ func createPlace(_ httprouter.Params, _ url.Values, reader io.Reader, session *m
 }
 
 func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
-	db, err := sql.Open("mysql", "root@/aiteru")
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
 	errorChecker(err)
 
 	defer db.Close()
@@ -167,7 +168,7 @@ func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 }
 
 func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
-	db, err := sql.Open("mysql", "root@/aiteru")
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
 	errorChecker(err)
 
 	defer db.Close()
@@ -199,7 +200,7 @@ func postStatus(ps httprouter.Params, _ url.Values, reader io.Reader, session *m
 		return rest.Fail(http.StatusBadRequest, err.Error()), err
 	}
 
-	db, err := sql.Open("mysql", "root@/aiteru")
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
 	errorChecker(err)
 
 	defer db.Close()
@@ -237,7 +238,7 @@ func postStatus(ps httprouter.Params, _ url.Values, reader io.Reader, session *m
 }
 
 func getStatus(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
-	db, err := sql.Open("mysql", "root@/aiteru")
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
 	errorChecker(err)
 
 	defer db.Close()

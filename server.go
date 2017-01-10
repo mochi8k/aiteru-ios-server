@@ -6,9 +6,10 @@ import (
 
 	_ "github.com/mochi8k/aiteru-ios-server/app/controllers"
 	"github.com/mochi8k/aiteru-ios-server/app/handlers/router"
+	. "github.com/mochi8k/aiteru-ios-server/config"
 )
 
 func main() {
-	fmt.Println("activated the web server on port 8000")
-	http.ListenAndServe(":8000", router.GetInstance())
+	fmt.Println("activated the web server on port " + Config.Port)
+	http.ListenAndServe(":"+Config.Port, router.GetInstance())
 }

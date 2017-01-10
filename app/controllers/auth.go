@@ -18,6 +18,7 @@ import (
 	rest "github.com/mochi8k/aiteru-ios-server/app/http"
 	"github.com/mochi8k/aiteru-ios-server/app/models"
 	"github.com/mochi8k/aiteru-ios-server/app/stores"
+	. "github.com/mochi8k/aiteru-ios-server/config"
 )
 
 type loginParam struct {
@@ -42,7 +43,7 @@ func authenticate(_ httprouter.Params, _ url.Values, reader io.Reader, _ *models
 	fmt.Printf("LoginParam: %v\n", loginParam)
 	fmt.Printf("LoginUserName: %v\n", loginParam.UserName)
 
-	db, err := sql.Open("mysql", "root@/aiteru")
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
 	errorChecker(err)
 
 	defer db.Close()
