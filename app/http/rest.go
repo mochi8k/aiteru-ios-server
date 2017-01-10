@@ -80,8 +80,9 @@ func Register(pattern string, requestHandlers map[string]Handler) {
 
 func apiResourceHandler(requestHandler Handler) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-
 		fmt.Printf("RequestURI: %s\n", req.URL.Path)
+
+        fmt.Printf("Content-Type: %s\n", req.Header.Get("Content-Type"))
 
 		session, isUnauth := Auth(req.URL.Path, req.Header.Get("Authorization"))
 

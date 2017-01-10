@@ -39,7 +39,8 @@ func authenticate(_ httprouter.Params, _ url.Values, reader io.Reader, _ *models
 		return rest.Fail(http.StatusBadRequest, err.Error()), err
 	}
 
-	fmt.Printf("Login: %v\n", loginParam)
+	fmt.Printf("LoginParam: %v\n", loginParam)
+	fmt.Printf("LoginUserName: %v\n", loginParam.UserName)
 
 	db, err := sql.Open("mysql", "root@/aiteru")
 	errorChecker(err)
