@@ -13,6 +13,14 @@ create database aiteru;
 $ go run server.go
 ```
 
+## Config
+```
+export APP_PORT=8000
+export APP_MYSQL_USER=user-name
+export APP_MYSQL_PASSWORD=password
+export APP_MYSQL_DB=db-name
+```
+
 # API
 
 ### Auth
