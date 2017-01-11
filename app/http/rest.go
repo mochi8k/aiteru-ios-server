@@ -82,13 +82,19 @@ func apiResourceHandler(requestHandler Handler) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 		fmt.Printf("RequestURI: %s\n", req.URL.Path)
 
-        fmt.Printf("Content-Type: %s\n", req.Header.Get("Content-Type"))
+		var session *models.Session
 
-		session, isUnauth := Auth(req.URL.Path, req.Header.Get("Authorization"))
+		// TODO
+		if req.Method != get {
 
-		if isUnauth {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
+			_session, isUnauth := Auth(req.URL.Path, req.Header.Get("Authorization"))
+
+			if isUnauth {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			session = _session
 		}
 
 		b := bytes.NewBuffer(make([]byte, 0))
