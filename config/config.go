@@ -14,6 +14,9 @@ type config struct {
 type mySQL struct {
 	User       string `default:"root"`
 	Password   string `default:""`
+	Host       string `default:"localhost"`
+	Port       string `default:"3306"`
+	Protocol   string `default:"tcp"`
 	DB         string `default:"aiteru"`
 	Connection string
 }
@@ -25,11 +28,10 @@ func init() {
 
 	if err != nil {
 		panic(err)
-
 	}
 
 	Config.MySQL.Connection =
-		Config.MySQL.User + ":" + Config.MySQL.Password + "@/" + Config.MySQL.DB
+		fmt.Sprintf("%s:%s@%s(%s:%s)/%s", Config.MySQL.User, Config.MySQL.Password, Config.MySQL.Protocol, Config.MySQL.Host, Config.MySQL.Port, Config.MySQL.DB)
 
 	fmt.Printf("Config: %+v\n", Config)
 }

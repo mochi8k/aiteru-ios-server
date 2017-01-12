@@ -18,6 +18,9 @@ $ go run server.go
 export APP_PORT=8000
 export APP_MYSQL_USER=user-name
 export APP_MYSQL_PASSWORD=password
+export APP_MYSQL_HOST=localhost
+export APP_MYSQL_PORT=3306
+export APP_MYSQL_PROTOCOL=tcp
 export APP_MYSQL_DB=db-name
 ```
 
