@@ -9,6 +9,14 @@
 | Content-Type  | application/json |
 | Authorization | {access_token}   |
 
+
+## Request Parameter
+
+| Key           | Value            | Description                                                                         |
+|---------------|------------------|-------------------------------------------------------------------------------------|
+| filter        | open, closed     | フィルター(open: 開いている場所情報のみ取得, closed: 閉まっている場所情報のみ取得)  |
+
+
 ## Body
 
 なし
