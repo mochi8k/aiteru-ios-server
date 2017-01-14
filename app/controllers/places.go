@@ -162,12 +162,8 @@ func getPlaces(_ httprouter.Params, query url.Values, _ io.Reader, _ *models.Ses
 
 	defer res.Close()
 
-	if filter := query.Get("filter"); filter != "" {
-		return placesFilter(places, filter)
-	}
-
 	return rest.Success(http.StatusOK), map[string][]*models.Place{
-		"places": places,
+		"places": placesFilter(places, query.Get("filter")),
 	}
 }
 
@@ -298,7 +294,7 @@ func selectPlace(db *sql.DB, placeID string) *models.Place {
 	return place
 }
 
-func placesFilter(places []*models.Place, filter string) (rest.APIStatus, interface{}) {
+func placesFilter(places []*models.Place, filter string) []*models.Place {
 	var filteredPlaces []*models.Place
 
 	for _, place := range places {
@@ -314,8 +310,5 @@ func placesFilter(places []*models.Place, filter string) (rest.APIStatus, interf
 		}
 
 	}
-
-	return rest.Success(http.StatusOK), map[string][]*models.Place{
-		"places": filteredPlaces,
-	}
+	return filteredPlaces
 }
