@@ -19,3 +19,7 @@ func (p Place) GetID() string {
 func (p *Place) SetStatus(placeStatus *PlaceStatus) {
 	p.Status = placeStatus
 }
+
+func (p *Place) IsOpen() bool {
+	return p.Status.IsOpen
+}

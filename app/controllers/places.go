@@ -128,7 +128,7 @@ func createPlace(_ httprouter.Params, _ url.Values, reader io.Reader, session *m
 	}
 }
 
-func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
+func getPlaces(_ httprouter.Params, query url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
 	db, err := sql.Open("mysql", Config.MySQL.Connection)
 	errorChecker(err)
 
@@ -161,6 +161,10 @@ func getPlaces(_ httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 	}
 
 	defer res.Close()
+
+	if filter := query.Get("filter"); filter != "" {
+		return placesFilter(places, filter)
+	}
 
 	return rest.Success(http.StatusOK), map[string][]*models.Place{
 		"places": places,
@@ -292,4 +296,26 @@ func selectPlace(db *sql.DB, placeID string) *models.Place {
 
 	fmt.Printf("Place: %+v\n", place)
 	return place
+}
+
+func placesFilter(places []*models.Place, filter string) (rest.APIStatus, interface{}) {
+	var filteredPlaces []*models.Place
+
+	for _, place := range places {
+
+		if place.IsOpen() && filter == "open" {
+			filteredPlaces = append(filteredPlaces, place)
+
+		} else if !place.IsOpen() && filter == "closed" {
+			filteredPlaces = append(filteredPlaces, place)
+
+		} else if filter != "open" && filter != "closed" {
+			filteredPlaces = append(filteredPlaces, place)
+		}
+
+	}
+
+	return rest.Success(http.StatusOK), map[string][]*models.Place{
+		"places": filteredPlaces,
+	}
 }
