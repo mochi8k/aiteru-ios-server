@@ -2,7 +2,7 @@ package stores
 
 import (
 	"fmt"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
+	"github.com/mochi8k/aiteru-server/app/models"
 )
 
 type sessionStore struct {

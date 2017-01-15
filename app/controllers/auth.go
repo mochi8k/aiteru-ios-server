@@ -15,10 +15,10 @@ import (
 	"net/url"
 
 	"github.com/julienschmidt/httprouter"
-	rest "github.com/mochi8k/aiteru-ios-server/app/http"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
-	"github.com/mochi8k/aiteru-ios-server/app/stores"
-	. "github.com/mochi8k/aiteru-ios-server/config"
+	rest "github.com/mochi8k/aiteru-server/app/http"
+	"github.com/mochi8k/aiteru-server/app/models"
+	"github.com/mochi8k/aiteru-server/app/stores"
+	. "github.com/mochi8k/aiteru-server/config"
 )
 
 type loginParam struct {

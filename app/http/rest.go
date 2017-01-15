@@ -11,9 +11,9 @@ import (
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/mochi8k/aiteru-ios-server/app/handlers/router"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
-	"github.com/mochi8k/aiteru-ios-server/app/stores"
+	"github.com/mochi8k/aiteru-server/app/handlers/router"
+	"github.com/mochi8k/aiteru-server/app/models"
+	"github.com/mochi8k/aiteru-server/app/stores"
 )
 
 const (

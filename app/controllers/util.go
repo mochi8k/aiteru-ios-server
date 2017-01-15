@@ -5,7 +5,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/mochi8k/aiteru-ios-server/app/models"
+	"github.com/mochi8k/aiteru-server/app/models"
 )
 
 const (
