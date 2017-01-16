@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -162,8 +163,13 @@ func getPlaces(_ httprouter.Params, query url.Values, _ io.Reader, _ *models.Ses
 
 	defer res.Close()
 
+	if param := query.Get("isOpen"); param == "true" || param == "false" {
+		isOpen, _ := strconv.ParseBool(param)
+		places = placesFilter(places, isOpen)
+	}
+
 	return rest.Success(http.StatusOK), map[string][]*models.Place{
-		"places": placesFilter(places, query.Get("filter")),
+		"places": places,
 	}
 }
 
@@ -294,21 +300,13 @@ func selectPlace(db *sql.DB, placeID string) *models.Place {
 	return place
 }
 
-func placesFilter(places []*models.Place, filter string) []*models.Place {
+func placesFilter(places []*models.Place, isOpen bool) []*models.Place {
 	var filteredPlaces []*models.Place
 
 	for _, place := range places {
-
-		if place.IsOpen() && filter == "open" {
-			filteredPlaces = append(filteredPlaces, place)
-
-		} else if !place.IsOpen() && filter == "closed" {
-			filteredPlaces = append(filteredPlaces, place)
-
-		} else if filter != "open" && filter != "closed" {
+		if place.IsOpen() == isOpen {
 			filteredPlaces = append(filteredPlaces, place)
 		}
-
 	}
 	return filteredPlaces
 }
