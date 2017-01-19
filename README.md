@@ -40,5 +40,6 @@ export APP_MYSQL_DB=db-name
 * [POST /v1/places](docs/v1/places_post.md) - 場所情報を登録
 * [GET /v1/places](docs/v1/places_get.md) - 場所情報の一覧を取得
 * [GET /v1/places/:place_id](docs/v1/places_id_get.md) - 場所情報を取得
+* [DELETE /v1/places/:place_id](docs/v1/places_id_delete.md) - 場所情報を削除
 * [POST /v1/places/:place_id/status](docs/v1/places_id_status_post.md) - 場所情報に紐づく状態を登録
 * [GET /v1/places/:place_id/status](docs/v1/places_id_status_get.md) - 場所情報に紐づく状態を取得
