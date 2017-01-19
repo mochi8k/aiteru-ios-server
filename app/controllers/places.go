@@ -210,10 +210,9 @@ func deletePlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Sess
 		return rest.FailByCode(http.StatusNotFound), nil
 
 	}
-	var r sql.Result
+
 	// TODO: transaction
-	r, err = sq.Delete("").From("places").Where(sq.Eq{"id": id}).RunWith(db).Exec()
-	fmt.Println(r)
+	_, err = sq.Delete("").From("places").Where(sq.Eq{"id": id}).RunWith(db).Exec()
 	errorChecker(err)
 
 	_, err = sq.Delete("").From("place_owners").Where(sq.Eq{"place_id": id}).RunWith(db).Exec()
