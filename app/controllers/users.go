@@ -27,8 +27,9 @@ func init() {
 	})
 
 	rest.Register("/v1/users/:user-id", map[string]rest.Handler{
-		"GET": getUser,
-		"PUT": updateUser,
+		"GET":    getUser,
+		"PUT":    updateUser,
+		"DELETE": deleteUser,
 	})
 }
 
@@ -151,14 +152,7 @@ func getUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session)
 	id := ps.ByName("user-id")
 	fmt.Printf("user-id: %s\n", id)
 
-	user := toUser(
-		sq.
-			Select("*").
-			From("users").
-			Where(sq.Eq{"users.id": id}).
-			RunWith(db).
-			QueryRow(),
-	)
+	user := selectUser(db, id)
 
 	if user.ID == "" {
 		return rest.FailByCode(http.StatusNotFound), nil
@@ -167,4 +161,46 @@ func getUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session)
 	return rest.Success(http.StatusOK), map[string]*models.User{
 		"user": user,
 	}
+}
+
+func deleteUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
+	errorChecker(err)
+
+	defer db.Close()
+
+	id := ps.ByName("user-id")
+	fmt.Printf("user-id: %s\n", id)
+
+	user := selectUser(db, id)
+
+	if user.ID == "" {
+		return rest.FailByCode(http.StatusNotFound), nil
+	}
+
+	// TODO: transaction
+	_, err = sq.Delete("").From("users").Where(sq.Eq{"id": id}).Exec()
+	errorChecker(err)
+
+	_, err = sq.Delete("").From("place_owners").Where(sq.Eq{"owner_id": id}).Exec()
+	errorChecker(err)
+
+	_, err = sq.Delete("").From("place_collaborators").Where(sq.Eq{"collaborator_id": id}).Exec()
+	errorChecker(err)
+
+	return rest.Success(http.StatusNoContent), nil
+}
+
+func selectUser(db *sql.DB, userID string) *models.User {
+	user := toUser(
+		sq.
+			Select("*").
+			From("users").
+			Where(sq.Eq{"users.id": userID}).
+			RunWith(db).
+			QueryRow(),
+	)
+
+	fmt.Printf("User: %+v\n", user)
+	return user
 }
