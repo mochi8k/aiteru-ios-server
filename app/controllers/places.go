@@ -28,7 +28,8 @@ func init() {
 	})
 
 	rest.Register("/v1/places/:place-id", map[string]rest.Handler{
-		"GET": getPlace,
+		"GET":    getPlace,
+		"DELETE": deletePlace,
 	})
 
 	rest.Register("/v1/places/:place-id/status", map[string]rest.Handler{
@@ -192,6 +193,39 @@ func getPlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session
 	return rest.Success(http.StatusOK), map[string]*models.Place{
 		"place": place,
 	}
+}
+
+func deletePlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Session) (rest.APIStatus, interface{}) {
+	db, err := sql.Open("mysql", Config.MySQL.Connection)
+	errorChecker(err)
+
+	defer db.Close()
+
+	id := ps.ByName("place-id")
+	fmt.Printf("place-id: %s\n", id)
+
+	place := selectPlace(db, id)
+
+	if place.ID == "" {
+		return rest.FailByCode(http.StatusNotFound), nil
+
+	}
+	var r sql.Result
+	// TODO: transaction
+	r, err = sq.Delete("").From("places").Where(sq.Eq{"id": id}).RunWith(db).Exec()
+	fmt.Println(r)
+	errorChecker(err)
+
+	_, err = sq.Delete("").From("place_owners").Where(sq.Eq{"place_id": id}).RunWith(db).Exec()
+	errorChecker(err)
+
+	_, err = sq.Delete("").From("place_collaborators").Where(sq.Eq{"place_id": id}).RunWith(db).Exec()
+	errorChecker(err)
+
+	_, err = sq.Delete("").From("place_status").Where(sq.Eq{"place_id": id}).RunWith(db).Exec()
+	errorChecker(err)
+
+	return rest.Success(http.StatusNoContent), nil
 }
 
 type statusParam struct {
