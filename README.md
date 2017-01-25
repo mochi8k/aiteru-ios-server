@@ -9,8 +9,15 @@ create database aiteru;
 ```
 
 ## Go
+
+Process start for production
 ```
 $ go run server.go
+```
+
+Live reload for development
+```
+$ fresh
 ```
 
 ## Config
