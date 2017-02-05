@@ -172,9 +172,7 @@ func deleteUser(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Sessi
 	id := ps.ByName("user-id")
 	fmt.Printf("user-id: %s\n", id)
 
-	user := selectUser(db, id)
-
-	if user.ID == "" {
+	if user := selectUser(db, id); user.GetID() == "" {
 		return rest.FailByCode(http.StatusNotFound), nil
 	}
 

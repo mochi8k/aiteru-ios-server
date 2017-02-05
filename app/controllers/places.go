@@ -204,9 +204,7 @@ func deletePlace(ps httprouter.Params, _ url.Values, _ io.Reader, _ *models.Sess
 	id := ps.ByName("place-id")
 	fmt.Printf("place-id: %s\n", id)
 
-	place := selectPlace(db, id)
-
-	if place.ID == "" {
+	if place := selectPlace(db, id); place.GetID() == "" {
 		return rest.FailByCode(http.StatusNotFound), nil
 
 	}
