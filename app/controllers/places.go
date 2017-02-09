@@ -259,9 +259,9 @@ func postStatus(ps httprouter.Params, _ url.Values, reader io.Reader, session *m
 	placeStatus := toPlaceStatus(
 		sq.
 			Select("*").
-			From("place_status as ps").
-			Where(sq.Eq{"ps.place_id": placeID}).
-			OrderBy("ps.updated_at DESC").
+			From("place_status").
+			Where(sq.Eq{"place_id": placeID}).
+			OrderBy("updated_at DESC").
 			Limit(1).
 			RunWith(db).
 			QueryRow(),
