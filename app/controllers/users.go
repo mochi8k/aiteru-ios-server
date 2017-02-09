@@ -50,13 +50,12 @@ func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *mo
 
 	defer db.Close()
 
-	user := session.GetUser()
-	createUserID := user.GetID()
+	createdUserID := session.GetUser().GetID()
 
 	sq.
 		Insert("users").
 		Columns("user_name, created_at, created_by").
-		Values(bodyParam.UserName, time.Now(), createUserID).
+		Values(bodyParam.UserName, time.Now(), createdUserID).
 		RunWith(db).
 		QueryRow()
 
@@ -64,7 +63,7 @@ func createUser(_ httprouter.Params, _ url.Values, reader io.Reader, session *mo
 		sq.
 			Select("*").
 			From("users").
-			Where(sq.Eq{"users.user_name": bodyParam.UserName}).
+			Where(sq.Eq{"user_name": bodyParam.UserName}).
 			RunWith(db).QueryRow(),
 	)
 
@@ -101,14 +100,7 @@ func updateUser(ps httprouter.Params, _ url.Values, reader io.Reader, session *m
 		RunWith(db).
 		QueryRow()
 
-	updatedUser := toUser(
-		sq.
-			Select("*").
-			From("users").
-			Where(sq.Eq{"users.id": id}).
-			RunWith(db).
-			QueryRow(),
-	)
+	updatedUser := selectUser(db, id)
 
 	if updatedUser.ID == "" {
 		return rest.FailByCode(http.StatusNotFound), nil
