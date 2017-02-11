@@ -8,6 +8,12 @@ $ mysql -uroot
 create database aiteru;
 ```
 
+## Redis
+```
+$ brew install redis
+$ redis-server redis/redis.conf
+```
+
 ## Go
 
 Process start for production
