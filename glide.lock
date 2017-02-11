@@ -1,5 +1,5 @@
-hash: a2407f204409d258db522dc93028bab1b2081e10e27e866b4ca8dc6eac0e9513
-updated: 2017-01-26T01:09:08.272952051+09:00
+hash: 62c57d3d17739f195559fb6835981d5a5918fdc9599dc45b50585e5f017346d4
+updated: 2017-02-12T02:15:29.006184083+09:00
 imports:
 - name: github.com/go-sql-driver/mysql
   version: a0583e0143b1624142adab07e0e97fe106d99561
@@ -17,4 +17,12 @@ imports:
   version: 315385b584ff3845a255844aeb2b7d14a26648b0
 - name: github.com/satori/go.uuid
   version: 879c5887cd475cd7864858769793b2ceb0d44feb
+- name: gopkg.in/redis.v5
+  version: 2fe9c5cc0a8da9faeba3a45511a4ece8f7e37dc2
+  subpackages:
+  - internal
+  - internal/consistenthash
+  - internal/hashtag
+  - internal/pool
+  - internal/proto
 testImports: []

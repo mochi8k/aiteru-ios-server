@@ -1,23 +1,58 @@
 package stores
 
 import (
+	"encoding/json"
 	"fmt"
+
+	"gopkg.in/redis.v5"
+
 	"github.com/mochi8k/aiteru-server/app/models"
 )
 
-type sessionStore struct {
-	sessionsMap map[string]*models.Session
-}
+var client *redis.Client
 
-var ss = &sessionStore{
-	sessionsMap: map[string]*models.Session{},
-}
+func init() {
+	// TODO: set by ENV
+	client = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0, // use default DB
+	})
 
-func AddSession(s *models.Session) {
-	fmt.Println(s.GetAccessToken())
-	ss.sessionsMap[s.GetAccessToken()] = s
+	pong, err := client.Ping().Result()
+	fmt.Printf("Client Init: %v-%v\n", pong, err)
 }
 
 func GetSession(accessToken string) *models.Session {
-	return ss.sessionsMap[accessToken]
+	userString, err := client.Get(accessToken).Result()
+	if userString == "" || err == redis.Nil {
+		return nil
+	}
+
+	fmt.Printf("UserString by Redis: %v\n", userString)
+
+	var user *models.User
+	json.Unmarshal([]byte(userString), &user)
+
+	if user.GetID() == "" {
+		return nil
+	}
+
+	return &models.Session{
+		AccessToken: accessToken,
+		User:        *user,
+	}
+}
+
+func AddSession(session *models.Session) {
+	marshaledUser, _ := json.Marshal(session.GetUser())
+
+	err := client.Set(session.GetAccessToken(), string(marshaledUser), 0).Err()
+
+	if err != nil {
+		fmt.Printf("Error add session: %v\n", err)
+	} else {
+		val, _ := client.Get(session.GetAccessToken()).Result()
+		fmt.Printf("Add to Redis: %v\n", val)
+	}
 }
