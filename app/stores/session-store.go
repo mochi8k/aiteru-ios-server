@@ -7,16 +7,16 @@ import (
 	"gopkg.in/redis.v5"
 
 	"github.com/mochi8k/aiteru-server/app/models"
+	. "github.com/mochi8k/aiteru-server/config"
 )
 
 var client *redis.Client
 
 func init() {
-	// TODO: set by ENV
 	client = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0, // use default DB
+		Addr:     Config.Redis.Host + ":" + Config.Redis.Port,
+		Password: Config.Redis.Password,
+		DB:       0,
 	})
 
 	pong, err := client.Ping().Result()

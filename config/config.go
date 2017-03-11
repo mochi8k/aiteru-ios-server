@@ -9,6 +9,7 @@ import (
 type config struct {
 	Port  string `default:"8000"`
 	MySQL mySQL
+	Redis redis
 }
 
 type mySQL struct {
@@ -19,6 +20,13 @@ type mySQL struct {
 	Protocol   string `default:"tcp"`
 	DB         string `default:"aiteru"`
 	Connection string
+}
+
+type redis struct {
+	Host     string `default:"localhost"`
+	Port     string `default:"6379"`
+	Password string `default:""`
+	DB       string `default:"0"`
 }
 
 var Config config
