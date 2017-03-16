@@ -19,6 +19,8 @@ func init() {
 		DB:       0,
 	})
 
+	fmt.Printf("Client: %v", client)
+
 	pong, err := client.Ping().Result()
 	fmt.Printf("Client Init: %v-%v\n", pong, err)
 }
