@@ -13,6 +13,8 @@ import (
 var client *redis.Client
 
 func init() {
+	fmt.Println("session-store: init")
+
 	client = redis.NewClient(&redis.Options{
 		Addr:     Config.Redis.Host + ":" + Config.Redis.Port,
 		Password: Config.Redis.Password,
