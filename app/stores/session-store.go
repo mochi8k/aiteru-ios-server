@@ -16,9 +16,10 @@ func init() {
 	fmt.Println("session-store: init")
 
 	client = redis.NewClient(&redis.Options{
-		Addr:     Config.Redis.Host + ":" + Config.Redis.Port,
-		Password: Config.Redis.Password,
-		DB:       0,
+		Addr:       Config.Redis.Host + ":" + Config.Redis.Port,
+		Password:   Config.Redis.Password,
+		DB:         0,
+		MaxRetries: 5,
 	})
 
 	fmt.Printf("Client: %v", client)
