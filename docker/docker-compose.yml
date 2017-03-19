@@ -1,20 +1,18 @@
 version: '2'
 services:
-  # mysql:
-  #   build: ./mysql
-  #   ports:
-  #     - "3306:3306"
+  mysql:
+    build: ./mysql
+    ports:
+      - "3306:3306"
   redis:
     build: ./redis
-    image: aiteru-cache
     ports:
       - "6379:6379"
   go:
     build: ./go
-    image: aiteru-server2
     environment:
       APP_PORT: 8000
-      # APP_MYSQL_HOST: mysql
+      APP_MYSQL_HOST: mysql
       APP_MYSQL_PORT: 3306
       APP_MYSQL_PROTOCOL: tcp
       APP_MYSQL_USER: root
@@ -28,5 +26,5 @@ services:
       - "8000:8000"
     links:
       - redis
-      # - mysql
+      - mysql
       
