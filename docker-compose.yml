@@ -1,15 +1,15 @@
 version: '2'
 services:
   mysql:
-    build: ./mysql
+    build: ./docker/mysql
     ports:
       - "3306:3306"
   redis:
-    build: ./redis
+    build: ./docker/redis
     ports:
       - "6379:6379"
   go:
-    build: ./go
+    build: ./docker/go
     environment:
       APP_PORT: 8000
       APP_MYSQL_HOST: mysql
