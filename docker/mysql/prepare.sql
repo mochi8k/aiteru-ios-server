@@ -40,4 +40,3 @@ create table users(
 );
 
 insert into users (user_name, created_at) values ("admin", current_time);
-       
