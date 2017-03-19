@@ -13,8 +13,6 @@ import (
 var client *redis.Client
 
 func init() {
-	fmt.Println("session-store: init")
-
 	client = redis.NewClient(&redis.Options{
 		Addr:       Config.Redis.Host + ":" + Config.Redis.Port,
 		Password:   Config.Redis.Password,
@@ -22,10 +20,8 @@ func init() {
 		MaxRetries: 5,
 	})
 
-	fmt.Printf("Client: %v", client)
-
 	pong, err := client.Ping().Result()
-	fmt.Printf("Client Init: %v-%v\n", pong, err)
+	fmt.Printf("Redis Init: %v-%v\n", pong, err)
 }
 
 func GetSession(accessToken string) *models.Session {
